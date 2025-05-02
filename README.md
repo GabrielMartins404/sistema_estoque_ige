@@ -120,8 +120,8 @@ Caso prefira, há a opção de rodar usando docker seguindo os seguintes passos.
    ```
 
 2. Navegue até o arquivo a raiz do projeto onde existe o arquivo `docker-compose.yml` e execute o comando:
-`docker-compose up` para iniciar a aplicação.
-`docker-compose down` para finalizar
+```docker-compose up``` para iniciar a aplicação.
+```docker-compose down``` para finalizar
 
 ## 📈 Uso
 
