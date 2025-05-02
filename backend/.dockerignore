@@ -1,0 +1,6 @@
+**/target/
+**/docs/
+**/views/
+**/.git
+**/README.md
+**/.vscode
