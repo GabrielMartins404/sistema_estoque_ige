@@ -1,39 +1,54 @@
-# Arquivos de ambiente
+# ======================================
+# Arquivos de ambiente e configurações sensíveis
+# ======================================
 .env
 *.env
+.env.*
+!.env.example  # Permite um template de exemplo (opcional)
+secrets.yml
+config.json
+*.secret
+*.key
+*.cert
+*.pem
 
-# Logs
+# ======================================
+# Logs e arquivos temporários
+# ======================================
 *.log
 logs/
 **/logs/
-
-# Diretórios e arquivos do Docker
-docker-compose.override.yml
-docker-compose.override.yaml
-docker-compose.local.yml
-docker-compose.local.yaml
 *.pid
-
-# Volumes docker se estiver usando bind mounts ou arquivos auxiliares
-mysqlvolume/
-
-# Arquivos do sistema operacional
-.DS_Store
-Thumbs.db
-
-# Arquivos temporários
 *.tmp
 *.swp
 *.bak
 
-# Configs de IDE
+# ======================================
+# Docker e volumes
+# ======================================
+docker-compose.override.*
+docker-compose.local.*
+mysqlvolume/
+*.tar
+*.img
+
+# ======================================
+# Sistema operacional e lixo
+# ======================================
+.DS_Store
+Thumbs.db
+
+# ======================================
+# IDEs e ferramentas de desenvolvimento
+# ======================================
 .vscode/
 .idea/
 *.iml
 
-# Arquivos de build docker (se eventualmente forem gerados)
-*.tar
-*.img
-
-# Node Modules ou outras libs se por acaso forem parar na raiz
+# ======================================
+# Dependências e builds
+# ======================================
 node_modules/
+dist/
+build/
+*.exe
