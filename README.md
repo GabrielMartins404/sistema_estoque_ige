@@ -55,11 +55,12 @@ A aplicação permite:
 - Registro de entradas e saídas de materiais
 - Cadastro e gerenciamento de requisitantes e cursos
 
-## 🛠️ Recursos
+## 🛠️ Recursos e Serviços
 
-- Sistema web responsivo e moderno
+- Sistema web
 - Backend com **Spring Boot** e arquitetura MVC
 - Frontend em **React/Next.js** com **TypeScript** e **Tailwind CSS**
+- Banco de dados em **MySQL**
 - API REST para integração frontend e backend
 - Controle de estoque com cadastro, atualização e movimentação de materiais
 
@@ -93,7 +94,8 @@ A aplicação permite:
 
 5. Acesse: `http://localhost:3000`
 
-**OBS:** Backend padrão na porta `8080` e CORS configurado para aceitar requisições da porta `3000`. Contudo, essas informações poderão ser alteradas via variaveis de ambiente presente no `.env`. Em desenvolvimento, utiliza-se as credenciais acima, contudo, em produção, esses valores deverão ser editados via variaveis de ambiente.
+**OBS:** Backend padrão na porta `8080` e CORS configurado para aceitar requisições da porta `3000`. Contudo, essas informações poderão ser alteradas via variaveis de ambiente presente no `.env`. 
+No ambiente de desenvolvimento, utilizam-se as credenciais acima. Entretanto, em produção, esses valores deverão ser editados via variaveis de ambiente.
 
 ## 📥 Instalação por Docker
 
@@ -118,11 +120,12 @@ Para finalizar:
 ```bash
 docker-compose down
 ```
+**OBS:** No arquivo `docker-compose.yml`, há uma parte que realiza a verificação das variaveis de ambiente, contido no espaço `environment`.
 
 ## 🔐 Configuração de Variáveis de Ambiente
 
 **⚠️ Atenção:**  
-O arquivo `.env` **não deve ser versionado**. Ele deve constar no `.gitignore` e ser compartilhado de forma privada com os desenvolvedores. Entrentanto, para fins de documentação, há um arquivo denominado `.env.dist` a qual traz exemplos de como deve ser configurado o `.env`.
+O arquivo `.env` **não é versionado diretamente**. Entrentanto, para fins de documentação, há um arquivo denominado `.env.dist` a qual traz exemplos de como deve ser configurado o `.env`.
 
 ### 📦 Backend (Spring Boot)
 
@@ -162,7 +165,9 @@ spring.profiles.active=prod
 ```
 
 **OBS:** Se, apesar das configurações das variáveis de ambiente, não funcionar a execução da aplicação, é possivel editar essas credenciais diretamente no código nos seguintes arquivos.
-FrontEnd: `frontend/services/api/apiCllient.ts`
+</br>
+FrontEnd: `frontend/services/api/apiCllient.ts` 
+</br>
 BackEnd: Nos arquivos `application.properties` e `backend/src/main/java/com/estoqueige/estoqueige/configs/SecurityConfig.java`
 
 ## 📈 Uso
