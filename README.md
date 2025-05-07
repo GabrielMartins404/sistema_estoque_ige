@@ -1,3 +1,4 @@
+
 # 📦 Estoque IGE
 
 Sistema de gerenciamento de estoque desenvolvido no âmbito acadêmico da **Universidade Federal do Sul e Sudeste do Pará**. O objetivo da aplicação é possibilitar maior controle e organização dos materiais utilizados no campus universitário, oferecendo uma interface prática e eficiente para o cadastro, consulta e movimentação de itens em estoque.
@@ -11,6 +12,8 @@ Sistema de gerenciamento de estoque desenvolvido no âmbito acadêmico da **Univ
 - [Instalação](#instalação)
 - [Instalação por Docker](#docker)
 - [Uso](#uso)
+- [Configuração de Variáveis de Ambiente](#configuração-de-variáveis-de-ambiente)
+- [Diferença entre application.properties dev e prod](#diferença-entre-applicationproperties-dev-e-prod)
 - [Desenvolvimento Futuro](#desenvolvimento-futuro)
 - [Licença](#licença)
 - [Contribuidores](#contribuidores)
@@ -27,47 +30,38 @@ A gestão através de planilhas de materiais em instituições de ensino superio
 
 A aplicação é dividida em duas partes principais:
 
-- **Backend**: desenvolvido em **Java**, utilizando o framework **Spring Boot** e o padrão de arquitetura **MVC (Model-View-Controller)**. 
-Navegando até o caminho `src\main\java\com\estoqueige\estoqueige`, existirá nove pastas que fazem todo o gerenciamento de toda a administração do Banco de dados e BackEnd. Sendo essas:
+- **Backend**: desenvolvido em **Java**, utilizando o framework **Spring Boot** e o padrão de arquitetura **MVC (Model-View-Controller)**.  
+  Navegando até o caminho `src/main/java/com/estoqueige/estoqueige`, existirá nove pastas que fazem o gerenciamento do banco de dados e backend:
 
- - `models`: Pasta responsável por armazenar as classes que representam as entidades do domínio da aplicação e os enums associados, correspondendo às tabelas no banco de dados.
+  - `models`: Representa as entidades do domínio.
+  - `repositories`: Interfaces responsáveis pelo acesso a dados.
+  - `services`: Regras de negócio intermediando controllers e repositórios.
+  - `controllers`: Controladores das rotas HTTP.
+  - `dto`: Classes para transferências de dados.
+  - `exceptions`: Tratamento de exceções customizadas.
+  - `configs`: Configurações específicas do Spring.
+  - `security`: Configuração e controle de segurança.
+  - `views`: Interface web incorporada no backend.
 
- - `repositories`: Pasta que contém as interfaces responsáveis pelo acesso aos dados, geralmente estendendo JpaRepository ou CrudRepository, definindo as operações de CRUD e consultas customizadas.
+- **Frontend**: construído com **React**, **Next.js**, **TypeScript** e estilização com **Tailwind CSS**. O frontend consome os serviços do backend via API REST.
 
- - `services`: Pasta onde ficam as classes de serviço, responsáveis por implementar as regras de negócio da aplicação, intermediando a comunicação entre os controllers e os repositórios.
-
- - `controllers`: Pasta que armazena as classes controladoras, responsáveis por mapear as requisições HTTP e direcioná-las para os serviços apropriados, retornando as respostas adequadas.
-
- - `dto`: Pasta onde são armazenadas as classes DTO (Data Transfer Object), utilizadas para trafegar dados entre o cliente e o servidor de forma estruturada, sem expor diretamente as entidades do banco.
-
- - `exceptions`: Pasta que contém as classes de tratamento de exceções customizadas, permitindo personalizar as respostas de erro da aplicação.
-
- - `configs`: Pasta onde ficam as classes de configuração da aplicação, como configurações de CORS, beans customizados e outras definições específicas do Spring.
-
- - `security`: Pasta responsável por armazenar as configurações e classes relacionadas à segurança da aplicação, como filtros de autenticação, configurações de WebSecurity, JWT ou OAuth2.
-
-A estrutura do projeto conta com os arquivos padrões do Spring e uma pasta adicional chamada `views`, localizada na raíz do diretório, a qual contém a lógica do front end.
-  
-- **Frontend**: construído com **React**, **Next.js**, **TypeScript** e estilização com **Tailwind CSS**. O frontend se comunica com o backend via requisições HTTP, consumindo os serviços disponibilizados pela API.
-
-A aplicação permite operações como:
+A aplicação permite:
 
 - Cadastro e gerenciamento de usuários
 - Definição de permissões e níveis de acesso
 - Cadastro de produtos
 - Consulta de itens em estoque
-- Cadastro e gerenciamento de unidades e categorias de produtos
+- Cadastro e gerenciamento de unidades e categorias
 - Atualização de informações
-- Registro de entrada e saída de materiais
-- Cadastro e gerenciamento de requisitantes juntamente com seus cursos de origem
+- Registro de entradas e saídas de materiais
+- Cadastro e gerenciamento de requisitantes e cursos
 
 ## 🛠️ Recursos
 
 - Sistema web responsivo e moderno
 - Backend com **Spring Boot** e arquitetura MVC
 - Frontend em **React/Next.js** com **TypeScript** e **Tailwind CSS**
-- API REST para integração entre frontend e backend
-- Tela principal incorporando os arquivos do frontend na estrutura do backend
+- API REST para integração frontend e backend
 - Controle de estoque com cadastro, atualização e movimentação de materiais
 
 ## 📥 Instalação
@@ -77,7 +71,7 @@ A aplicação permite operações como:
 - Java 17+
 - Node.js 18+
 - NPM ou Yarn
-- MySQL (ou outro banco configurado no projeto)
+- MySQL
 
 ### Passos para instalar
 
@@ -86,7 +80,7 @@ A aplicação permite operações como:
    https://github.com/GabrielMartins404/sistema_estoque_ige.git
    ```
 
-2. Navegue até o arquivo `src\main\java\com\estoqueige\estoqueige\EstoqueIgeApplication.java` e o execute.
+2. Navegue até `src/main/java/com/estoqueige/estoqueige/EstoqueIgeApplication.java` e execute.
 
 3. Na pasta do frontend, instale as dependências:
    ```bash
@@ -98,57 +92,96 @@ A aplicação permite operações como:
    npm run dev
    ```
 
-5. Acesse a aplicação em: `http://localhost:3000`
+5. Acesse: `http://localhost:3000`
 
-OBS: A aplicação do backEnd rodará por padrão na porta `http://localhost:8080`. Além disso, é configurado no cors da aplicação para que só seja aceito requisições da porta 3000.
+**OBS:** Backend padrão na porta `8080` e CORS configurado para aceitar requisições da porta `3000`. Contudo, essas informações poderão ser alteradas via variaveis de ambiente presente no `.env`. Em desenvolvimento, utiliza-se as credenciais acima, contudo, em produção, esses valores deverão ser editados via variaveis de ambiente.
 
-
-## 📥 Instalação por docker
-
-Caso prefira, há a opção de rodar usando docker seguindo os seguintes passos.
+## 📥 Instalação por Docker
 
 ### Pré-requisitos
 
-- Docker instalado
-- Docker-compose instalado
+- Docker
+- Docker Compose
 
-### Passos para instalar
+### Passos
 
 1. Clone o repositório:
    ```bash
    https://github.com/GabrielMartins404/sistema_estoque_ige.git
    ```
 
-2. Navegue até o arquivo a raiz do projeto onde existe o arquivo `docker-compose.yml` e execute o comando:
+2. Na raiz do projeto (onde está o `docker-compose.yml`):
    ```bash
    docker-compose up
    ```
-   Para finalizar, execute:
-   ```bash
-   docker-compose down
-   ```
+
+Para finalizar:
+```bash
+docker-compose down
+```
+
+## 🔐 Configuração de Variáveis de Ambiente
+
+**⚠️ Atenção:**  
+O arquivo `.env` **não deve ser versionado**. Ele deve constar no `.gitignore` e ser compartilhado de forma privada com os desenvolvedores. Entrentanto, para fins de documentação, há um arquivo denominado `.env.dist` a qual traz exemplos de como deve ser configurado o `.env`.
+
+### 📦 Backend (Spring Boot)
+
+| Nome                        | Descrição                                              | Exemplo                                    |
+|:---------------------------|:------------------------------------------------------|:--------------------------------------------|
+| `SPRING_DATASOURCE_URL`      | URL de conexão com o banco de dados                   | `jdbc:mysql://localhost:3306/estoqueige`   |
+| `SPRING_DATASOURCE_USERNAME` | Usuário do banco de dados                              | `root`                                     |
+| `SPRING_DATASOURCE_PASSWORD` | Senha do banco de dados                                | `admin`                                    |
+| `USER_LOGIN`                 | E-mail padrão do administrador                        | `suporte@teste`                        |
+| `USER_PASSWORD`              | Senha padrão do administrador                         | `123`                           |
+| `JWT_SECRET`                 | Chave secreta para JWT                                 | `superSegredo123456789`                    |
+| `JWT_EXPIRATION`             | Tempo de expiração do JWT em milissegundos             | `86400000`                                 |
+| `FRONTEND_HOST`              | Endereço permitido para CORS                           | `http://localhost:3000`                    |
+
+### ⚛️ Frontend (Next.js)
+
+Para o frontend, crie um arquivo `.env.local` na raiz da pasta `frontend/`. 
+
+Exemplo:
+```env
+NEXT_PUBLIC_BACKEND_HOST=http://localhost:8080
+```
+
+## 📊 Diferença entre application.properties dev e prod
+
+| Configuração        | `application.properties` (Dev)       | `application-prod.properties` (Prod) |
+|:-------------------|:-------------------------------------|:-------------------------------------|
+| `spring.jpa.show-sql` | `true` (exibe queries no console)    | `false` (não exibe)                  |
+| `spring.jpa.hibernate.ddl-auto` | `update` (cria e atualiza tabelas) | `update` ou `validate`               |
+| Credenciais e JWT    | via `.env` local                     | via variáveis do Railway ou servidor |
+| Perfis ativos        | `dev`                                 | `prod`                               |
+
+Para ativar:
+
+```properties
+spring.profiles.active=prod
+```
 
 ## 📈 Uso
 
-Após a instalação, acesse a aplicação para:
+Após a instalação:
 
-- Realizar cadastro de novos materiais
-- Consultar estoque disponível
-- Editar informações de itens existentes
-- Registrar entradas e saídas de materiais no campus
-- Acompanhar o histórico de movimentação
-- E etc...
+- Cadastre novos materiais
+- Consulte o estoque
+- Edite informações
+- Registre entradas e saídas
+- Acompanhe histórico de movimentações
 
 ## 🚀 Desenvolvimento Futuro
 
-- Permissão para requisitante não autenticados visualizarem o estoque de produto
-- Permissão para requisitante não autenticados requisitarem produtos ao almoxarifado
+- Acesso público para consulta de produtos
+- Permitir requisições públicas de materiais
 - Relatórios em PDF e Excel
-- Registro de histórico detalhado de movimentações
+- Histórico detalhado de movimentações
 
 ## 📄 Licença
 
-Este projeto é de uso acadêmico e sem fins comerciais. Os direitos autorais pertencem aos desenvolvedores do projeto e à **Universidade Federal do Sul e Sudeste do Pará**.
+Uso acadêmico, sem fins comerciais. Direitos autorais dos desenvolvedores e da **Universidade Federal do Sul e Sudeste do Pará**.
 
 ## 👥 Contribuidores
 
