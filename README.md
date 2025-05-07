@@ -83,7 +83,7 @@ A aplicação permite operações como:
 
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/GabrielMartins404/Estoque_IGE.git
+   https://github.com/GabrielMartins404/sistema_estoque_ige.git
    ```
 
 2. Navegue até o arquivo `src\main\java\com\estoqueige\estoqueige\EstoqueIgeApplication.java` e o execute.
@@ -116,12 +116,17 @@ Caso prefira, há a opção de rodar usando docker seguindo os seguintes passos.
 
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/GabrielMartins404/Estoque_IGE.git
+   https://github.com/GabrielMartins404/sistema_estoque_ige.git
    ```
 
 2. Navegue até o arquivo a raiz do projeto onde existe o arquivo `docker-compose.yml` e execute o comando:
-`docker-compose up` para iniciar a aplicação.
-`docker-compose down` para finalizar
+   ```bash
+   docker-compose up
+   ```
+   Para finalizar, execute:
+   ```bash
+   docker-compose down
+   ```
 
 ## 📈 Uso
 
