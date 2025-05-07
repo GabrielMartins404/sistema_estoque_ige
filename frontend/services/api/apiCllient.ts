@@ -1,13 +1,13 @@
 // Esse componente terá como propósito, a configuração global do axios, a qual apontará para a API em Spring
 import axios from "axios";
-
+const BACKEND_HOST = process.env.NEXT_PUBLIC_BACKEND_HOST
 let errorHandler: ((msg: string) => void) | null = null;
 
 export const setErrorHandler = (handler: (msg: string) => void) => {
   errorHandler = handler;
 }
 const apiClient = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_BACKEND_HOST || "http://localhost:8080",
+    baseURL: BACKEND_HOST,
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json'
@@ -16,6 +16,7 @@ const apiClient = axios.create({
 
 //Interceptor para as requisições de API
 apiClient.interceptors.request.use((config) => {
+  console.log(BACKEND_HOST)
     const token = localStorage.getItem('Authorization')
     if(token){
         config.headers.Authorization = token
