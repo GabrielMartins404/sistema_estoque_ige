@@ -1,7 +1,6 @@
 package com.estoqueige.estoqueige.security;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 
 import org.springframework.security.core.Authentication;
@@ -49,7 +48,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain, Authentication authentication) throws IOException, ServletException{
         UserSpringSecurity userSpringSecurity = (UserSpringSecurity) authentication.getPrincipal();
-        String userName = userSpringSecurity.getUsername();
+        //String userName = userSpringSecurity.getUsername();
         String token = this.jwtUtil.generateToken(userSpringSecurity);
         response.addHeader("Authorization", "Bearer "+token);
         response.addHeader("access-control-expose-headers", "Authorization");

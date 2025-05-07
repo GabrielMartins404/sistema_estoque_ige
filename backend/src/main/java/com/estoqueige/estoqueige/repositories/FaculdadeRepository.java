@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.estoqueige.estoqueige.models.Faculdade;
-import com.estoqueige.estoqueige.models.Produto;
 
 @Repository
 public interface FaculdadeRepository extends JpaRepository<Faculdade, Long> {

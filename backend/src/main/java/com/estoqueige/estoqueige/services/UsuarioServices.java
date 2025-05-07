@@ -11,7 +11,6 @@ import com.estoqueige.estoqueige.services.exceptions.ErroCamposFixos;
 import com.estoqueige.estoqueige.services.exceptions.ErroValidacoesObjRepetidos;
 
 import jakarta.transaction.Transactional;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

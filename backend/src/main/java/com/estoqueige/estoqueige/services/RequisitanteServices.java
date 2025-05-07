@@ -5,7 +5,6 @@ import com.estoqueige.estoqueige.models.Faculdade;
 import com.estoqueige.estoqueige.models.Requisitante;
 import com.estoqueige.estoqueige.repositories.RequisitanteRepository;
 import com.estoqueige.estoqueige.services.exceptions.ErroAoBuscarObjetos;
-import com.estoqueige.estoqueige.services.exceptions.ErroValidacaoLogica;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;

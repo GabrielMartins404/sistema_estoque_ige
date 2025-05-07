@@ -4,9 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-import com.estoqueige.estoqueige.models.ProdutoMovimentacao;
-import com.estoqueige.estoqueige.models.Requisitante;
-import com.estoqueige.estoqueige.models.Usuario;
 import com.estoqueige.estoqueige.models.enums.MovOrigem;
 import com.estoqueige.estoqueige.models.enums.MovStatus;
 import com.estoqueige.estoqueige.models.enums.MovTipo;

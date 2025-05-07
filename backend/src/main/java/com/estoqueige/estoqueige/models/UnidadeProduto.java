@@ -2,11 +2,6 @@ package com.estoqueige.estoqueige.models;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 

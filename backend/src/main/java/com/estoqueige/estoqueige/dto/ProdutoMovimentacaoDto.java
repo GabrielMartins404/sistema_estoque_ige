@@ -1,11 +1,7 @@
 package com.estoqueige.estoqueige.dto;
 
-import com.estoqueige.estoqueige.models.Produto;
-
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Objects;
 
 
 @Getter

@@ -1,7 +1,6 @@
 package com.estoqueige.estoqueige.dto;
 
 import java.time.LocalDate;
-import java.util.Objects;
 
 import com.estoqueige.estoqueige.models.Movimentacao;
 import com.estoqueige.estoqueige.models.enums.MovStatus;

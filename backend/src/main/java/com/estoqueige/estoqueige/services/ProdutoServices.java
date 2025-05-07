@@ -6,9 +6,7 @@ import com.estoqueige.estoqueige.models.CategoriaProduto;
 import com.estoqueige.estoqueige.models.MovimentacaoEstoque;
 import com.estoqueige.estoqueige.models.Produto;
 import com.estoqueige.estoqueige.models.UnidadeProduto;
-import com.estoqueige.estoqueige.repositories.CategoriaProdutoRepository;
 import com.estoqueige.estoqueige.repositories.ProdutoRepository;
-import com.estoqueige.estoqueige.repositories.UnidadeProdutoRepository;
 import com.estoqueige.estoqueige.services.exceptions.ErroAoBuscarObjetos;
 import com.estoqueige.estoqueige.services.exceptions.ErroValidacaoLogica;
 
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProdutoServices {
