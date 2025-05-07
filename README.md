@@ -28,10 +28,10 @@ A gestão através de planilhas de materiais em instituições de ensino superio
 
 ## ⚙️ Como Funciona
 
-A aplicação é dividida em duas partes principais:
+A aplicação é dividida em duas partes principais, separadas por duas pastas:
 
 - **Backend**: desenvolvido em **Java**, utilizando o framework **Spring Boot** e o padrão de arquitetura **MVC (Model-View-Controller)**.  
-  Navegando até o caminho `src/main/java/com/estoqueige/estoqueige`, existirá nove pastas que fazem o gerenciamento do banco de dados e backend:
+  Navegando até o caminho `src/main/java/com/estoqueige/estoqueige`, existirá sete pacotes que fazem o gerenciamento do banco de dados e backend:
 
   - `models`: Representa as entidades do domínio.
   - `repositories`: Interfaces responsáveis pelo acesso a dados.
@@ -41,7 +41,6 @@ A aplicação é dividida em duas partes principais:
   - `exceptions`: Tratamento de exceções customizadas.
   - `configs`: Configurações específicas do Spring.
   - `security`: Configuração e controle de segurança.
-  - `views`: Interface web incorporada no backend.
 
 - **Frontend**: construído com **React**, **Next.js**, **TypeScript** e estilização com **Tailwind CSS**. O frontend consome os serviços do backend via API REST.
 
@@ -112,7 +111,7 @@ A aplicação permite:
 
 2. Na raiz do projeto (onde está o `docker-compose.yml`):
    ```bash
-   docker-compose up
+   docker-compose up --build
    ```
 
 Para finalizar:
@@ -156,11 +155,15 @@ NEXT_PUBLIC_BACKEND_HOST=http://localhost:8080
 | Credenciais e JWT    | via `.env` local                     | via variáveis do Railway ou servidor |
 | Perfis ativos        | `dev`                                 | `prod`                               |
 
-Para ativar:
+Para ativar, configure a seguinte variavel na aplication.properties do backend:
 
 ```properties
 spring.profiles.active=prod
 ```
+
+**OBS:** Se, apesar das configurações das variáveis de ambiente, não funcionar a execução da aplicação, é possivel editar essas credenciais diretamente no código nos seguintes arquivos.
+FrontEnd: `frontend/services/api/apiCllient.ts`
+BackEnd: Nos arquivos `application.properties` e `backend/src/main/java/com/estoqueige/estoqueige/configs/SecurityConfig.java`
 
 ## 📈 Uso
 
@@ -181,7 +184,7 @@ Após a instalação:
 
 ## 📄 Licença
 
-Uso acadêmico, sem fins comerciais. Direitos autorais dos desenvolvedores e da **Universidade Federal do Sul e Sudeste do Pará**.
+Programa desenvolvido para uso acadêmico, sem fins comerciais. Direitos autorais dos desenvolvedores e da **Universidade Federal do Sul e Sudeste do Pará**.
 
 ## 👥 Contribuidores
 
