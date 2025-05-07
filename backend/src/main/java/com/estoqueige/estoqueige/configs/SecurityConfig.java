@@ -43,6 +43,9 @@ public class SecurityConfig {
     @Value("${frontend.host}")
     private String frontEndHost;
 
+    @Value("${frontend.port}")
+    private String frontEndPort;
+
     //Indico quais rotas do sistema não precisará de autenticação
     private static final String[] PUBLIC_MATCHERS = {
         "/"
@@ -88,7 +91,7 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(frontEndHost)); // Origem específica
+        configuration.setAllowedOrigins(List.of(frontEndHost+":"+frontEndPort)); // Origem específica
         configuration.setAllowedMethods(List.of("POST", "GET", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*")); // Todos os headers
         configuration.setAllowCredentials(true); // Permite credenciais

@@ -13,6 +13,9 @@ RUN npm install
 # Copiando restante do projeto
 COPY . .
 
+ARG NEXT_PUBLIC_BACKEND_HOST
+ENV NEXT_PUBLIC_BACKEND_HOST=$NEXT_PUBLIC_BACKEND_HOST
+
 # Build da aplicação Next.js
 RUN npm run build
 

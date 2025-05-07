@@ -1,6 +1,11 @@
 // Esse componente terá como propósito, a configuração global do axios, a qual apontará para a API em Spring
 import axios from "axios";
 const BACKEND_HOST = process.env.NEXT_PUBLIC_BACKEND_HOST
+
+if (!BACKEND_HOST) {
+  throw new Error("Variável de ambiente Backend não configurada.");
+}
+
 let errorHandler: ((msg: string) => void) | null = null;
 
 export const setErrorHandler = (handler: (msg: string) => void) => {
@@ -16,7 +21,6 @@ const apiClient = axios.create({
 
 //Interceptor para as requisições de API
 apiClient.interceptors.request.use((config) => {
-  console.log(BACKEND_HOST)
     const token = localStorage.getItem('Authorization')
     if(token){
         config.headers.Authorization = token
