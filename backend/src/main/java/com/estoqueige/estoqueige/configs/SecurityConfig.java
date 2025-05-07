@@ -7,6 +7,7 @@ import com.estoqueige.estoqueige.security.JWTutil;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -39,6 +40,9 @@ public class SecurityConfig {
     @Lazy
     @Autowired
     private JWTutil jwtUtil;
+
+    @Value("${frontend.host}")
+    private String frontEndHost;
 
     //Indico quais rotas do sistema não precisará de autenticação
     private static final String[] PUBLIC_MATCHERS = {
@@ -85,7 +89,7 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // Origem específica
+        configuration.setAllowedOrigins(List.of(frontEndHost)); // Origem específica
         configuration.setAllowedMethods(List.of("POST", "GET", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*")); // Todos os headers
         configuration.setAllowCredentials(true); // Permite credenciais

@@ -7,7 +7,7 @@ export const setErrorHandler = (handler: (msg: string) => void) => {
   errorHandler = handler;
 }
 const apiClient = axios.create({
-    baseURL: `http://127.0.0.1:8080`,
+    baseURL: process.env.NEXT_PUBLIC_BACKEND_HOST || "http://localhost:8080",
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json'

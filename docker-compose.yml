@@ -35,6 +35,11 @@ services:
       SPRING_DATASOURCE_URL: "jdbc:mysql://mysqldb:${MYSQLDB_DOCKER_PORT}/${MYSQLDB_DATABASE}?useSSL=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true"
       SPRING_DATASOURCE_USERNAME: ${MYSQLDB_USER}
       SPRING_DATASOURCE_PASSWORD: ${MYSQLDB_PASSWORD}
+      USER_LOGIN: ${USER_LOGIN}
+      USER_PASSWORD: ${USER_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      FRONTEND_HOST: ${FRONTEND_HOST}
     volumes:
       - .m2:/root/.m2
     healthcheck:
