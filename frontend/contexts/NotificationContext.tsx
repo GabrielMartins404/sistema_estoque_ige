@@ -1,6 +1,7 @@
 "use client"
 
 import {createContext, useState, useContext, ReactNode} from 'react'
+import { v4 as uuidv4 } from 'uuid';
 
 type ErrorType = {
     id?: string
@@ -38,7 +39,7 @@ export const ErrorProvider = ({children} : ErrorProviderProps) =>{
     const addNotification = (error: ErrorType | string) => {
         const errorObj: ErrorType = typeof error === 'string' ? {mensagem: error, tipo: 'error'} : error //Aqui é feito uma inserção condicional, onde se o tipo passado for string, simplesmente adiciona a mesmo a um objeto de erros
 
-        const errorComId = {...errorObj, id: errorObj.id || crypto.randomUUID()}
+        const errorComId = {...errorObj, id: errorObj.id || uuidv4()}
         
         //Adiciono o erro com id no vetor de erros
         setErrors(prev => [...prev, errorComId])

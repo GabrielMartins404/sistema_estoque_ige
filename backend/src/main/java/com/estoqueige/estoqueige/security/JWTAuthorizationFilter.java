@@ -41,11 +41,15 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter{
     }
 
     private UsernamePasswordAuthenticationToken getAuthentication(String token){
-        if(this.jwtUtil.isValidToken(token)){
-            String username = this.jwtUtil.getUserName(token);
-            UserDetails user = this.userDetailsService.loadUserByUsername(username);
-            return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+        try {
+            if (this.jwtUtil.isValidToken(token)) {
+                String username = this.jwtUtil.getUserName(token);
+                UserDetails user = this.userDetailsService.loadUserByUsername(username);
+                return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+            }
+        } catch (Exception e) {
+            System.out.println("[DEBUG] Falha na validação do token: " + e.getMessage());
         }
-        return null;
+        return null; // Retorna 403 se o token for inválido
     }
 }
