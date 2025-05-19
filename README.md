@@ -136,9 +136,11 @@ O arquivo `.env` **não é versionado diretamente**. Entrentanto, para fins de d
 | `SPRING_DATASOURCE_PASSWORD` | Senha do banco de dados                                | `admin`                                    |
 | `USER_LOGIN`                 | E-mail padrão do administrador                        | `suporte@teste`                        |
 | `USER_PASSWORD`              | Senha padrão do administrador                         | `123`                           |
-| `JWT_SECRET`                 | Chave secreta para JWT                                 | `superSegredo123456789`                    |
+| `JWT_SECRET`                 | Chave secreta para JWT                                 | `superSegredoComNoMinimo32Caracteres123456789`                    |
 | `JWT_EXPIRATION`             | Tempo de expiração do JWT em milissegundos             | `86400000`                                 |
-| `FRONTEND_HOST`              | Endereço permitido para CORS                           | `http://localhost:3000`                    |
+| `NEXT_PUBLIC_BACKEND_HOST`   | Endereço de comunicação do backend, usado pelo Front   | `http://localhost:8080`                    |
+| `FRONTEND_HOST`              | Endereço permitido para CORS                           | `http://localhost`                    |
+| `FRONTEND_HOST_PORT`         | Porta em que o HOSto do FRON esteja rodando    | `3000`                    |
 
 ### ⚛️ Frontend (Next.js)
 
