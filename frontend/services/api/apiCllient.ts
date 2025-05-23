@@ -6,6 +6,10 @@ if (!BACKEND_HOST) {
   throw new Error("Variável de ambiente Backend não configurada.");
 }
 
+type Erro422 = {
+  mensagem: string,
+  campo: string
+}
 let errorHandler: ((msg: string) => void) | null = null;
 
 export const setErrorHandler = (handler: (msg: string) => void) => {
@@ -34,7 +38,13 @@ apiClient.interceptors.response.use(
   response => response,
   error => {
     const msg = error.response?.data?.mensagem || "Erro inesperado na API";
-    if (errorHandler && error.response?.data?.status != 401) {
+    if(error.response?.data?.status == 422){
+      const erros = error.response?.data.errors
+      erros.forEach((erro: Erro422) => {
+        if (errorHandler) errorHandler(erro.mensagem)
+      });
+    }
+    if (errorHandler && error.response?.data?.status != 401 && error.response?.data?.status != 422) {
       errorHandler(msg);
     }
 

@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -35,11 +36,13 @@ public class Faculdade {
     @Column(name = "facId", unique = true)
     private Long facId;
 
-    @Column(name = "facNome", length = 50, nullable = false)
+    @Column(name = "facNome", length = 100, nullable = false)
     @NotBlank(message = "O nome da faculdade não pode ser nulo nem vazio")
+    @Size(max = 100, message = "O nome da faculdade deve ter no máximo 100 caracteres.")
     private String facNome;
 
     @Column(name = "facSigla", length = 20, nullable = true)
+    @Size(max = 20, message = "O sigla da faculdade deve ter no máximo 20 caracteres.")
     private String facSigla;
 
     @Column(name = "isAtivo", columnDefinition = "TINYINT(1) DEFAULT 1", nullable = false)

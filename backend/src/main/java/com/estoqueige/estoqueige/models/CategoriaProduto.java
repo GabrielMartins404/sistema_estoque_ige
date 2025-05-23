@@ -15,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -38,6 +39,7 @@ public class CategoriaProduto {
 
     @Column(name = "catProNome", length = 50, nullable = false)
     @NotBlank(message = "O nome da categoria não pode ser nulo nem vazio")
+    @Size(max = 50, message = "O nome da categoria deve ter no máximo 50 caracteres.")
     private String catProNome;
 
     @Column(name = "isAtivo", columnDefinition = "TINYINT(1) DEFAULT 1")

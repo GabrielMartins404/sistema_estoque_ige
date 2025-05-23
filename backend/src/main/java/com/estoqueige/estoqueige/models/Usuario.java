@@ -15,6 +15,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -37,16 +38,19 @@ public class Usuario {
     private Long usuId;
 
     @Column(name = "usuNome", length = 100, nullable = false)
+    @Size(max = 100, message = "O nome do usuário deve ter no máximo 100 caracteres.")
     @NotBlank(message = "O nome do usuário não pode ser nem vazio e nem nulo")
     private String usuNome;
 
     @Column(name = "usuLogin", length = 60, nullable = false, unique = true)
     @NotBlank(message = "O email do usuário não pode ser nem vazio e nem nulo")
+    @Size(max = 100, message = "O e-mail do usuário deve ter no máximo 60 caracteres.")
     @Email(message = "O email do usuário precisa ser válido")
     private String usuLogin;
 
     @Column(name = "usuSenha", length = 60, nullable = false)
     @NotBlank(message = "A senha do usuário não pode ser nem vazio e nem nulo")
+    @Size(max = 100, message = "A senha do usuário deve ter no máximo 60 caracteres.")
     @JsonProperty(access = Access.WRITE_ONLY)
     private String usuSenha;
 

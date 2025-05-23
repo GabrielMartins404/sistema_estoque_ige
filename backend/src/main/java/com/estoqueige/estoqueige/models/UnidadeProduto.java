@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -36,10 +37,12 @@ public class UnidadeProduto {
 
     @Column(name = "unNome", length = 50, nullable = false)
     @NotBlank(message = "O nome da unidade não pode ser nulo nem vazio")
+    @Size(max = 100, message = "O nome do unidade deve ter no máximo 50 caracteres.")
     private String unNome;
 
     @Column(name = "unSigla", length = 10, nullable = false)
     @NotBlank(message = "A sigla da unidade não pode ser nulo nem vazio")
+    @Size(max = 100, message = "A sigla da unidade deve ter no máximo 10 caracteres.")
     private String unSigla;
 
     @Column(name = "isAtivo", columnDefinition = "TINYINT(1) DEFAULT 1", nullable = false)

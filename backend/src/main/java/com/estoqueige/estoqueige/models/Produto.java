@@ -11,6 +11,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -42,10 +43,12 @@ public class Produto {
 
     @Column(name = "proNome", length = 100, nullable = false)
     @NotBlank(message = "O nome do produto não pode ser vazio e nem nulo")
+    @Size(max = 100, message = "O nome do produto deve ter no máximo 100 caracteres.")
     private String proNome;
 
-    @Column(name = "proSipac", length = 30, nullable = false)
+    @Column(name = "proSipac", length = 50, nullable = false)
     @NotBlank(message = "O código SIPAC do produto não pode ser vazio e nem nulo")
+    @Size(max = 100, message = "O código SIPAC do produto deve ter no máximo 50 caracteres.")
     private String proSipac;
 
     @Column(name = "proDescricao", columnDefinition = "TEXT", nullable = true)

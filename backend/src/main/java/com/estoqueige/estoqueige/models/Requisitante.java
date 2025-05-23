@@ -10,6 +10,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -34,6 +35,7 @@ public class Requisitante {
 
     @Column(name = "reqNome", length = 100, nullable = false)
     @NotBlank(message = "O nome do requisitante não pode ser vazio e nem nulo")
+    @Size(max = 100, message = "O nome do requisitante deve ter no máximo 100 caracteres.")
     private String reqNome;
 
     @Column(name = "isAtivo", columnDefinition = "TINYINT(1) DEFAULT 1", nullable = false)
