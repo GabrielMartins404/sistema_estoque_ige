@@ -7,7 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.estoqueige.estoqueige.models.enums.PerfisUsuario;
+import com.estoqueige.estoqueige.models.usuario.PerfisUsuario;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

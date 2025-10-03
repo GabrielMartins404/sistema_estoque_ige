@@ -59,7 +59,7 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.12.0</version>
-		<!--  Verifique a versão mais recente  -->
+		<!--  Verifique a versÃ£o mais recente  -->
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -85,7 +85,7 @@
 		 <dependency>
         	<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.30</version> <!-- Verifique a versão mais recente no repositório Maven -->
+			<version>1.18.30</version> <!-- Verifique a versÃ£o mais recente no repositÃ³rio Maven -->
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

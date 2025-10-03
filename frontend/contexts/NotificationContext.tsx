@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 type ErrorType = {
     id?: string
     mensagem: string
+    titulo?: string,
     tipo: 'error' | 'alerta' | 'info' 
 }
 
@@ -37,7 +38,7 @@ export const ErrorProvider = ({children} : ErrorProviderProps) =>{
     */
 
     const addNotification = (error: ErrorType | string) => {
-        const errorObj: ErrorType = typeof error === 'string' ? {mensagem: error, tipo: 'error'} : error //Aqui é feito uma inserção condicional, onde se o tipo passado for string, simplesmente adiciona a mesmo a um objeto de erros
+        const errorObj: ErrorType = typeof error === 'string' ? {mensagem: error, tipo: 'error', titulo: error} : error //Aqui é feito uma inserção condicional, onde se o tipo passado for string, simplesmente adiciona a mesmo a um objeto de erros
 
         const errorComId = {...errorObj, id: errorObj.id || uuidv4()}
         
@@ -83,3 +84,5 @@ export const useError = (): ErrorContextType => {
     }
     return context
 }
+
+//export const notification = useError()

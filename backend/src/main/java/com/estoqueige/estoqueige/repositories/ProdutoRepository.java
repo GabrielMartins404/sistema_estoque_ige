@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.estoqueige.estoqueige.models.Produto;
+import com.estoqueige.estoqueige.models.produto.Produto;
 import com.estoqueige.estoqueige.repositories.projections.ResumoQtdProdutoMovimentadoProjection;
 
 @Repository

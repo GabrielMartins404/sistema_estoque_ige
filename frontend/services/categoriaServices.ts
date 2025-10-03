@@ -1,9 +1,9 @@
+import { RequestCategoriaType, ResponseCategoriaType } from "@/hooks/categoria/types";
 import apiClient from "./api/apiCllient";
-import type { CategoriaType } from "@/types/categoriaType"; 
 
 
 export const CategoriaServices = {
-    async listarTodas(status: boolean): Promise<CategoriaType[]> {
+    async listarTodas(status: boolean): Promise<ResponseCategoriaType[]> {
         
         const response = await apiClient.get('/categoriaProduto/', {
             params: {
@@ -13,13 +13,13 @@ export const CategoriaServices = {
         return response.data
     },
 
-    async criar(dados: CategoriaType): Promise<CategoriaType>{
+    async criar(dados: RequestCategoriaType): Promise<ResponseCategoriaType>{
         const response = await apiClient.post('/categoriaProduto/', dados)
         return response.data
     
     },
 
-    async atualizar(id: number, dados: CategoriaType): Promise<CategoriaType>{
+    async atualizar(id: number, dados: RequestCategoriaType): Promise<ResponseCategoriaType>{
         const response = await apiClient.put(`/categoriaProduto/${id}`, dados)
         return response.data
     },

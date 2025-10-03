@@ -1,14 +1,16 @@
 package com.estoqueige.estoqueige.services;
 
-import com.estoqueige.estoqueige.dto.MovimentacaoDto;
-import com.estoqueige.estoqueige.dto.ProdutoMovimentacaoDto;
-import com.estoqueige.estoqueige.models.Movimentacao;
-import com.estoqueige.estoqueige.models.Produto;
-import com.estoqueige.estoqueige.models.ProdutoMovimentacao;
-import com.estoqueige.estoqueige.models.Requisitante;
-import com.estoqueige.estoqueige.models.Usuario;
 import com.estoqueige.estoqueige.models.enums.MovStatus;
 import com.estoqueige.estoqueige.models.enums.MovTipo;
+import com.estoqueige.estoqueige.models.movimentacao.Movimentacao;
+import com.estoqueige.estoqueige.models.movimentacao.RequestAtualizaMovimentacaoDTO;
+import com.estoqueige.estoqueige.models.movimentacao.RequestMovimentacaoDTO;
+import com.estoqueige.estoqueige.models.movimentacao.ResponseMovimentacaoDTO;
+import com.estoqueige.estoqueige.models.movimentacao.events.MovimentacaoCanceladaEvent;
+import com.estoqueige.estoqueige.models.movimentacao.events.MovimentacaoFinalizadaEvent;
+import com.estoqueige.estoqueige.models.produto.Produto;
+import com.estoqueige.estoqueige.models.requisitante.Requisitante;
+import com.estoqueige.estoqueige.models.usuario.Usuario;
 import com.estoqueige.estoqueige.repositories.MovimentacaoRepository;
 import com.estoqueige.estoqueige.security.UserSpringSecurity;
 import com.estoqueige.estoqueige.services.exceptions.ErroAoBuscarObjetos;
@@ -17,88 +19,33 @@ import com.estoqueige.estoqueige.services.exceptions.ErroMovimentacaoCancelada;
 import com.estoqueige.estoqueige.services.exceptions.ErroValidacaoLogica;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-
-import org.springframework.beans.BeanUtils;
+import java.util.stream.Collectors;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class MovimentacaoServices {
     private final MovimentacaoRepository movimentacaoRepository;
-
-    private final MovimentacaoEstoqueServices movimentacaoEstoqueServices;
-
     private final ProdutoServices produtoServices;
-
     private final UsuarioServices usuarioServices;
-
     private final RequisitanteServices requisitanteServices;
-
-
-    public MovimentacaoServices(MovimentacaoRepository movimentacaoRepository, MovimentacaoEstoqueServices movimentacaoEstoqueServices, ProdutoServices produtoServices, UsuarioServices usuarioServices, RequisitanteServices requisitanteServices) {
-        this.movimentacaoRepository = movimentacaoRepository;
-        this.movimentacaoEstoqueServices = movimentacaoEstoqueServices;
-        this.produtoServices = produtoServices;
-        this.usuarioServices = usuarioServices;
-        this.requisitanteServices = requisitanteServices;
-    }
+    private final ApplicationEventPublisher eventPublisher; 
 
 
     /* Método services */
-    //Como ProdutoMovimentacao é uma classe que depende de Movimentacao, esse método é implementado aqui. Mas pode ser alterado mais para frente
-    public ProdutoMovimentacaoDto gerarProdutoMovimentacaoDto(ProdutoMovimentacao produtoMovimentacao){
-        ProdutoMovimentacaoDto produtoMovimentacaoDto = new ProdutoMovimentacaoDto();
 
-        //Aqui converto o produtoMovimentacao em produtoDto, para simplificar a apresentação das movimentacoes
-        produtoMovimentacaoDto.setProduto(
-            this.produtoServices.gerarProdutoDto(produtoMovimentacao.getProMovProduto()
-        ));
-
-        produtoMovimentacaoDto.setQtdProduto(produtoMovimentacao.getProMovQtdProduto());
-
-        return produtoMovimentacaoDto;
-    }
-
-    public MovimentacaoDto gerarMovimentacaoDto(Movimentacao movimentacao){
-        MovimentacaoDto movimentacaoDto = new MovimentacaoDto();
-
-        List<ProdutoMovimentacaoDto> produtoMovimentacaoDtos = new ArrayList<>();
-        for (ProdutoMovimentacao produtoMovimentacao : movimentacao.getProdutosMov()) {
-            //Aqui, chamo a função acima que insere um array de ProdutoMovimentacao com ProdutoDto
-            produtoMovimentacaoDtos.add(gerarProdutoMovimentacaoDto(produtoMovimentacao));
-        }
-        Requisitante requisitante = this.requisitanteServices.buscarRequisitantePorId(movimentacao.getMovRequisitante().getReqId());
-
-        movimentacaoDto.setMovId(movimentacao.getMovId());
-        movimentacaoDto.setMovData(movimentacao.getMovData());
-        movimentacaoDto.setMovHorario(movimentacao.getMovHorario());
-        movimentacaoDto.setMovDataCancelamento(movimentacao.getMovDataCancelamento());
-        movimentacaoDto.setMovHorarioCancelamento(movimentacao.getMovHorarioCancelamento());
-        movimentacaoDto.setMovNf(movimentacao.getMovNf());
-        movimentacaoDto.setMovObservacao(movimentacao.getMovObservacao());
-        movimentacaoDto.setMovNumRequisicao(movimentacao.getMovNumRequisicao());
-        movimentacaoDto.setMovOrigem(movimentacao.getMovOrigem());
-        movimentacaoDto.setMovTipo(movimentacao.getMovTipo());
-        movimentacaoDto.setMovStatus(movimentacao.getMovStatus());
-        movimentacaoDto.setMovRequisitante(requisitante.getReqNome());
-        movimentacaoDto.setMovUsuario(movimentacao.getMovUsuario().getUsuNome());
-        movimentacaoDto.setProMovProduto(produtoMovimentacaoDtos);
-        return movimentacaoDto;
-        
-    }
-
-    //Esse método irá ser usado no frontEnd onde preciso que retorne somente uma movimentacao DTO
-    //Verifica se vai ser realmente necessário?
-    public MovimentacaoDto retornarMovimentacaoDto(Long id){
+    public ResponseMovimentacaoDTO retornarMovimentacaoDto(Long id){
         Movimentacao movimentacao = this.buscarMovimentacaoPorId(id);
-        MovimentacaoDto movimentacaoDto = gerarMovimentacaoDto(movimentacao);
 
-        return movimentacaoDto;
+        return ResponseMovimentacaoDTO.fromEntity(movimentacao);
     }
 
     public Movimentacao buscarMovimentacaoPorId(Long id){
@@ -108,22 +55,17 @@ public class MovimentacaoServices {
         return movimentacao;
     }
 
-    public List<MovimentacaoDto> buscarTodasMovimentacoes(String tipo, String status){
+    public List<ResponseMovimentacaoDTO> buscarTodasMovimentacoes(String tipo, String status){
         MovTipo movTipo = MovTipo.movTipo(tipo);
         MovStatus movStatus = MovStatus.movStatus(status);
         List<Movimentacao> movimentacoes = this.movimentacaoRepository.buscarMovimentacaosPorTipo(movTipo.name(), movStatus.name());
-        List<MovimentacaoDto> movimentacaoDtos = new ArrayList<>();
-        
-        for (Movimentacao movimentacao : movimentacoes) {
-            movimentacaoDtos.add(gerarMovimentacaoDto(movimentacao));
-        }
 
-        return movimentacaoDtos;
+        return ResponseMovimentacaoDTO.fromEntityList(movimentacoes);
     }
 
     //Método para salvar a movimentação no Banco de Dados
     @Transactional
-    public MovimentacaoDto salvarMovimentacao(Movimentacao movimentacao) {
+    public ResponseMovimentacaoDTO salvarMovimentacao(RequestMovimentacaoDTO dto) {
 
         //Puxar Usuario do Context
         UserSpringSecurity userSpringSecurity = UsuarioServices.autenticado();
@@ -132,53 +74,54 @@ public class MovimentacaoServices {
         }
         Usuario usuario = this.usuarioServices.buscarUsuarioPorId(userSpringSecurity.getId());
 
-        //Salvar a movimentação no banco de dados
-        movimentacao.setMovId(null);
-        movimentacao.setMovStatus(MovStatus.FINALIZADO);
-        movimentacao.setMovData(LocalDate.now());
-        movimentacao.setMovHorario(LocalTime.now());
-        movimentacao.setMovUsuario(usuario);
+        Requisitante requisitante = this.requisitanteServices.buscarRequisitantePorId(dto.movRequisitanteId());
 
-        //É preciso fazer o vinculo da movimentação para os ProdutosMovimentações. Desse modo, é preciso fazer o loop abaixo
-        for (ProdutoMovimentacao produtoMovimentacao : movimentacao.getProdutosMov()) {
-            //Valido se a quantidade inserida é maior que zero
-            if(produtoMovimentacao.getProMovQtdProduto() < 0){
-                throw new ErroValidacaoLogica("Não é possível realizar movimentação com quantidade negativa.");
-            }else{    
-                
-                //O loop não incrementa diretamente os produtos e sim a clase ProdutoMovimentacao, que além do produto, possui a informação da quantidade
-                Produto produto = this.produtoServices.buscarProdutoPorId(produtoMovimentacao.getProMovProduto().getProId()); 
-                //Verifico se o produto está ativo
-                if(produto.getIsAtivo()){
-                    //Verifico aqui se o produto tem estoque disponível para dar saída 
-                    if((produtoMovimentacao.getProMovQtdProduto() > produto.getProQtd()) && (movimentacao.getMovTipo() == MovTipo.SAIDA)){
-                        throw new ErroValidacaoLogica("O produto '" +produto.getProNome()+ "' não possui estoque suficiente para concluir a saida");
-                    }else if(!produtoMovimentacao.getProMovProduto().getIsAtivo()){ //Verifico se o produto está ativo
-                        throw new ErroValidacaoLogica("O produto '" +produto.getProNome()+ "' está inativo e não pode ser movimentado");
-                    }else{
-                        produtoMovimentacao.setProMovProduto(produto); //Seto as informações do produto
-                        produtoMovimentacao.setProMovMovimentacao(movimentacao); //Seto a informação da movimentacao
-                    }    
-                }else{
-                    throw new ErroValidacaoLogica("Produto "+produto.getProNome()+" está inativo e não pode ser movimentado!");
-                }
-                
-            }
+        List<Long> idsProdutos = dto.produtosMov().stream()
+            .map(item -> item.proMovProduto())
+            .toList();
+
+        if (idsProdutos.isEmpty()) {
+            throw new ErroValidacaoLogica("A movimentação deve conter pelo menos um item.");
         }
 
-        movimentacao = movimentacaoRepository.save(movimentacao);
+        List<Produto> produtos = this.produtoServices.buscarProdutosPorIds(idsProdutos);
 
-        for (ProdutoMovimentacao produtoMovimentacao: movimentacao.getProdutosMov()){
-            movimentacaoEstoqueServices.salvarMovimentacaoEstoque(movimentacao, produtoMovimentacao);
+        if (produtos.size() != idsProdutos.size()) {
+            throw new ErroAoBuscarObjetos("Um ou mais IDs de produto fornecidos são inválidos.");
         }
 
-        return gerarMovimentacaoDto(movimentacao);
+        Map<Long, Produto> produtosMap = produtos.stream()
+            .collect(Collectors.toMap(Produto::getProId, produto -> produto));
+
+        List<Movimentacao.ItemParaMovimentacao> itensParaMovimentacao = dto.produtosMov().stream()
+            .map(itemDto -> {
+                // Para cada item do comando, pegamos o objeto Produto correspondente no mapa.
+                Produto produtoCompleto = produtosMap.get(itemDto.proMovProduto());
+                
+                // Criamos o objeto auxiliar com a entidade `Produto` instanciada.
+                return new Movimentacao.ItemParaMovimentacao(
+                    produtoCompleto, 
+                    itemDto.proMovQtdProduto(), 
+                    itemDto.proMovCustoProduto()
+                );
+            })
+            .collect(Collectors.toList());
+        
+        Movimentacao movimentacao = Movimentacao.criar(usuario, requisitante, dto, itensParaMovimentacao);
+     
+        movimentacao = this.movimentacaoRepository.save(movimentacao);
+
+        //Anunciando a criação da movimentação para todos as minhas classes dependentes
+        this.eventPublisher.publishEvent(new MovimentacaoFinalizadaEvent(movimentacao.getMovId()));
+        return ResponseMovimentacaoDTO.fromEntity(movimentacao);
     }
 
     @Transactional
-    public Movimentacao atualizarMovimentacao(Movimentacao movimentacao){
-        Movimentacao newMovimentacao = this.buscarMovimentacaoPorId(movimentacao.getMovId());
-        BeanUtils.copyProperties(movimentacao, newMovimentacao, "getMovId");
+    public Movimentacao atualizarMovimentacao(Long id, RequestAtualizaMovimentacaoDTO dto){
+        Movimentacao newMovimentacao = this.buscarMovimentacaoPorId(id);
+        newMovimentacao.setMovNf(dto.movNf());
+        newMovimentacao.setMovNumRequisicao(dto.movNumRequisicao());
+        newMovimentacao.setMovObservacao(dto.movObservacao());
 
         return this.movimentacaoRepository.save(newMovimentacao);
     }
@@ -196,10 +139,9 @@ public class MovimentacaoServices {
         movimentacao.setMovDataCancelamento(LocalDate.now());
         movimentacao.setMovHorarioCancelamento(LocalTime.now());
         movimentacao.setMovStatus(MovStatus.CANCELADO);
-        this.atualizarMovimentacao(movimentacao);
+        this.movimentacaoRepository.save(movimentacao);
         
-        for (ProdutoMovimentacao produtoMovimentacao : movimentacao.getProdutosMov()) {
-            this.movimentacaoEstoqueServices.salvarMovimentacaoEstoque(movimentacao, produtoMovimentacao);
-        }
+        //Anunciando o cancelamento da movimentação para todos as minhas classes dependentes
+        this.eventPublisher.publishEvent(new MovimentacaoCanceladaEvent(movimentacao.getMovId()));
     }
 }

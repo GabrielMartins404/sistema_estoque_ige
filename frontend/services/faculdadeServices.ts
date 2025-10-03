@@ -1,9 +1,10 @@
 import apiClient from "./api/apiCllient";
-import type { FaculdadeType } from "@/types/faculdadeType";
+import type { RequestFaculdadeType } from "@/hooks/faculdade/types/RequestFaculdade.type";
+import type { ResponseFaculdadeType } from "@/hooks/faculdade/types/ResponseFaculdade.type";
 
 
 export const FaculdadeServices = {
-    async listarTodas(status: boolean): Promise<FaculdadeType[]> {
+    async listarTodas(status: boolean): Promise<ResponseFaculdadeType[]> {
         const response = await apiClient.get('/faculdade/', {
             params: {
                 status: status
@@ -13,13 +14,13 @@ export const FaculdadeServices = {
         
     },
 
-    async criar(dados: FaculdadeType): Promise<FaculdadeType>{
+    async criar(dados: RequestFaculdadeType): Promise<ResponseFaculdadeType>{
         
             const response = await apiClient.post('/faculdade/', dados)
             return response.data
     },
 
-    async atualizar(id: number, dados: FaculdadeType): Promise<FaculdadeType>{
+    async atualizar(id: number, dados: RequestFaculdadeType): Promise<ResponseFaculdadeType>{
         const response = await apiClient.put(`/faculdade/${id}`, dados)
         return response.data
         

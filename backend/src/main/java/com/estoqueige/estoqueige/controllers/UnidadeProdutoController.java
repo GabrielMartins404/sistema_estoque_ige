@@ -8,7 +8,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.estoqueige.estoqueige.models.UnidadeProduto;
+import com.estoqueige.estoqueige.models.unidadeProduto.RequestUnidadeProdutoDTO;
+import com.estoqueige.estoqueige.models.unidadeProduto.ResponseUnidadeProdutoDTO;
+import com.estoqueige.estoqueige.models.unidadeProduto.UnidadeProduto;
 import com.estoqueige.estoqueige.services.UnidadeProdutoServices;
 
 import jakarta.validation.Valid;
@@ -32,39 +34,38 @@ public class UnidadeProdutoController {
     }
 
     @GetMapping("/{idUnidadeProduto}")
-    public ResponseEntity<UnidadeProduto> buscarUnidadeProdutosPorId(@PathVariable Long idUnidadeProduto) {
+    public ResponseEntity<ResponseUnidadeProdutoDTO> buscarUnidadeProdutosPorId(@PathVariable Long idUnidadeProduto) {
         UnidadeProduto unidadeProduto = this.unidadeProdutoServices.buscarUnidadeProdutoPorId(idUnidadeProduto);
-        return ResponseEntity.ok().body(unidadeProduto);
+        return ResponseEntity.ok().body(ResponseUnidadeProdutoDTO.fromEntity(unidadeProduto));
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<UnidadeProduto>> buscarUnidadeProdutos(@RequestParam Boolean status) {
-        List<UnidadeProduto> unidadeProdutos = this.unidadeProdutoServices.buscarTodasUnidadeProdutos(status);
+    public ResponseEntity<List<ResponseUnidadeProdutoDTO>> buscarUnidadeProdutos(@RequestParam Boolean status) {
+        List<ResponseUnidadeProdutoDTO> unidadeProdutos = this.unidadeProdutoServices.buscarTodasUnidadeProdutos(status);
         return ResponseEntity.ok().body(unidadeProdutos);
     }
 
     @PostMapping("/")
-    public ResponseEntity<UnidadeProduto> criarUnidadeProduto(@Valid @RequestBody UnidadeProduto unidadeProduto){
-        UnidadeProduto unidadeSalva = this.unidadeProdutoServices.cadastrarUnidadeProduto(unidadeProduto);
+    public ResponseEntity<ResponseUnidadeProdutoDTO> criarUnidadeProduto(@Valid @RequestBody RequestUnidadeProdutoDTO unidadeProdutoDTO){
+        ResponseUnidadeProdutoDTO unidadeSalva = this.unidadeProdutoServices.cadastrarUnidadeProduto(unidadeProdutoDTO);
         
         URI uri = ServletUriComponentsBuilder
             .fromCurrentRequest()
             .path("/{idUnidadeProduto}")
-            .buildAndExpand(unidadeSalva.getUnId())
+            .buildAndExpand(unidadeSalva.unId())
             .toUri();
         return ResponseEntity.created(uri).body(unidadeSalva);
     }
 
     @PutMapping("/{idUnidadeProduto}")
-    public ResponseEntity<UnidadeProduto> atualizarUnidadeProduto(@Valid @RequestBody UnidadeProduto unidadeProduto, @PathVariable Long idUnidadeProduto){
-        unidadeProduto.setUnId(idUnidadeProduto);
-        return ResponseEntity.ok(this.unidadeProdutoServices.atualizarUnidadeProduto(unidadeProduto));
+    public ResponseEntity<ResponseUnidadeProdutoDTO> atualizarUnidadeProduto(@Valid @RequestBody RequestUnidadeProdutoDTO unidadeProdutoDTO, @PathVariable Long idUnidadeProduto){
+        return ResponseEntity.ok(this.unidadeProdutoServices.atualizarUnidadeProduto(idUnidadeProduto, unidadeProdutoDTO));
     }
 
     @PutMapping("/inativar/{idUnidadeProduto}")
-    public ResponseEntity<Void> inativarUnidadeProduto(@Valid @PathVariable Long idUnidadeProduto){
-        this.unidadeProdutoServices.alterarStatusAtivoUnidadeProduto(idUnidadeProduto);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<ResponseUnidadeProdutoDTO> inativarUnidadeProduto(@Valid @PathVariable Long idUnidadeProduto){
+        ResponseUnidadeProdutoDTO unidadeProduto = this.unidadeProdutoServices.alterarStatusAtivoUnidadeProduto(idUnidadeProduto);
+        return ResponseEntity.ok().body(unidadeProduto);
     }
     
 }

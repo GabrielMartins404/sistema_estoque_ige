@@ -15,8 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.estoqueige.estoqueige.dto.ProdutoDto;
-import com.estoqueige.estoqueige.models.Produto;
+import com.estoqueige.estoqueige.models.produto.Produto;
+import com.estoqueige.estoqueige.models.produto.RequestProdutoDTO;
+import com.estoqueige.estoqueige.models.produto.ResponseProdutoDTO;
 import com.estoqueige.estoqueige.services.ProdutoServices;
 
 import jakarta.validation.Valid;
@@ -33,37 +34,36 @@ public class ProdutoController {
 
     
     @GetMapping("/{idProduto}")
-    public ResponseEntity<Produto> buscarProdutosPorId(@PathVariable Long idProduto) {
+    public ResponseEntity<ResponseProdutoDTO> buscarProdutosPorId(@PathVariable Long idProduto) {
         Produto produto = this.produtoServices.buscarProdutoPorId(idProduto);
-        return ResponseEntity.ok().body(produto);
+        return ResponseEntity.ok().body(ResponseProdutoDTO.fromEntity(produto));
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<ProdutoDto>> buscarProdutos(@RequestParam Boolean status) {
-        List<ProdutoDto> produtos = this.produtoServices.buscarTodosProdutos(status);
+    public ResponseEntity<List<ResponseProdutoDTO>> buscarProdutos(@RequestParam Boolean status) {
+        List<ResponseProdutoDTO> produtos = this.produtoServices.buscarTodosProdutos(status);
         return ResponseEntity.ok().body(produtos);
     }
 
     @PostMapping(value = "/",  consumes = "application/json")
-    public ResponseEntity<ProdutoDto> criarProduto(@Valid @RequestBody Produto produto){
-        ProdutoDto produtoCriado = this.produtoServices.cadastrarProduto(produto);
+    public ResponseEntity<ResponseProdutoDTO> criarProduto(@Valid @RequestBody RequestProdutoDTO produtoDTO){
+        ResponseProdutoDTO produtoCriado = this.produtoServices.cadastrarProduto(produtoDTO);
         
         URI uri = ServletUriComponentsBuilder.fromCurrentContextPath()
         .path("/{idProduto}")
-        .buildAndExpand(produto.getProId())
+        .buildAndExpand(produtoCriado.proId())
         .toUri();
         return ResponseEntity.created(uri).body(produtoCriado);
     }
 
     @PutMapping("/{idProduto}")
-    public ResponseEntity<ProdutoDto> atualizarProduto(@Valid @RequestBody Produto produto, @PathVariable Long idProduto){
-        produto.setProId(idProduto);
-        return ResponseEntity.ok(this.produtoServices.atualizarProduto(produto));
+    public ResponseEntity<ResponseProdutoDTO> atualizarProduto(@Valid @RequestBody RequestProdutoDTO produtoDTO, @PathVariable Long idProduto){
+        return ResponseEntity.ok(this.produtoServices.atualizarProduto(idProduto, produtoDTO));
     }
 
     @PutMapping("/inativar/{idProduto}")
-    public ResponseEntity<Void> inativarProduto(@Valid @PathVariable Long idProduto){
-        this.produtoServices.alterarStatusAtivoProduto(idProduto);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<ResponseProdutoDTO> inativarProduto(@Valid @PathVariable Long idProduto){
+        ResponseProdutoDTO produto = this.produtoServices.alterarStatusAtivoProduto(idProduto);
+        return ResponseEntity.ok().body(produto);
     }
 }

@@ -11,7 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.estoqueige.estoqueige.exceptions.GlobalExceptionsHandler;
-import com.estoqueige.estoqueige.models.Usuario;
+import com.estoqueige.estoqueige.models.usuario.Usuario;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.FilterChain;

@@ -1,6 +1,5 @@
 package com.estoqueige.estoqueige.controllers;
 
-import java.net.URI;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -13,10 +12,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.estoqueige.estoqueige.dto.AlterarSenhaDto;
-import com.estoqueige.estoqueige.models.Usuario;
+import com.estoqueige.estoqueige.models.usuario.RequestCadastroUsuarioDTO;
+import com.estoqueige.estoqueige.models.usuario.RequestAtualizaUsuarioDTO;
+import com.estoqueige.estoqueige.models.usuario.RequestAtualizaSenhaUsuarioDTO;
+import com.estoqueige.estoqueige.models.usuario.ResponseUsuarioDTO;
+import com.estoqueige.estoqueige.models.usuario.Usuario;
 import com.estoqueige.estoqueige.services.UsuarioServices;
 
 import jakarta.validation.Valid;
@@ -33,29 +34,27 @@ public class UsuarioController {
 
     
     @GetMapping("/{idUsuario}")
-    public ResponseEntity<Usuario> buscarUsuariosPorId(@PathVariable Long idUsuario) {
+    public ResponseEntity<ResponseUsuarioDTO> buscarUsuariosPorId(@PathVariable Long idUsuario) {
         Usuario usuario = this.usuarioServices.buscarUsuarioPorId(idUsuario);
-        return ResponseEntity.ok().body(usuario);
+        return ResponseEntity.ok().body(ResponseUsuarioDTO.fromEntity(usuario));
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<Usuario>> buscarUsuarios(@RequestParam Boolean status) {
+    public ResponseEntity<List<ResponseUsuarioDTO>> buscarUsuarios(@RequestParam Boolean status) {
         List<Usuario> usuarios = this.usuarioServices.buscarTodosUsuarios(status);
-        return ResponseEntity.ok().body(usuarios);
+        return ResponseEntity.ok().body(ResponseUsuarioDTO.fromEntity(usuarios));
     }
 
     @PostMapping("/")
-    public ResponseEntity<Usuario> criarUsuario(@Valid @RequestBody Usuario usuario){
-        Usuario usuarioCriado = this.usuarioServices.cadastrarUsuario(usuario);
-        
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{idUsuario}").buildAndExpand(usuario.getUsuId()).toUri();
-        return ResponseEntity.created(uri).body(usuarioCriado);
+    public ResponseEntity<ResponseUsuarioDTO> criarUsuario(@Valid @RequestBody RequestCadastroUsuarioDTO dto){
+        ResponseUsuarioDTO usuarioCriado = this.usuarioServices.cadastrarUsuario(dto);
+    
+        return ResponseEntity.ok().body(usuarioCriado);
     }
 
     @PutMapping("/{idUsuario}")
-    public ResponseEntity<Usuario> atualizarUsuario(@RequestBody Usuario usuario, @PathVariable Long idUsuario){
-        usuario.setUsuId(idUsuario);
-        return ResponseEntity.ok(this.usuarioServices.atualizarUsuario(usuario));
+    public ResponseEntity<ResponseUsuarioDTO> atualizarUsuario(@RequestBody RequestAtualizaUsuarioDTO usuario, @PathVariable Long idUsuario){
+        return ResponseEntity.ok(this.usuarioServices.atualizarUsuario(idUsuario, usuario));
     }
 
     @PutMapping("/inativar/{idUsuario}")
@@ -65,8 +64,8 @@ public class UsuarioController {
     }
 
     @PutMapping("/alterarSenha/{idUsuario}")
-    public ResponseEntity<Void> alterarSenhaUsuario(@Valid @PathVariable Long idUsuario, @RequestBody AlterarSenhaDto alterarSenhaDto){
-        this.usuarioServices.alterarSenhaDeUsuario(idUsuario, alterarSenhaDto.getNovaSenha(), alterarSenhaDto.getSenhaAntiga());
+    public ResponseEntity<Void> alterarSenhaUsuario(@Valid @PathVariable Long idUsuario, @RequestBody RequestAtualizaSenhaUsuarioDTO dto){
+        this.usuarioServices.alterarSenhaDeUsuario(idUsuario, dto);
         return ResponseEntity.noContent().build();
     }
 

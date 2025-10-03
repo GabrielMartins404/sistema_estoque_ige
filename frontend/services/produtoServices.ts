@@ -1,26 +1,8 @@
-import apiClient from './api/apiCllient'
-import type { ProdutoType, FormProdutoType } from '@/types/produtoType'
-
-//Essa função formata os dados provenientes da API para envio ao backEnd
-const formatarDadosApi = (formData: FormProdutoType) =>{
-    return {
-        proNome: formData.proNome,
-        proSipac: formData.proSipac,
-        proQtd: formData.proQtd,
-        proDescricao: formData.proDescricao || '',
-        proEstoqueMin: formData.proEstoqueMin,
-        proCusto: formData.proCusto,
-        proCategoria: {
-            catProId: formData.proCategoriaId || null
-        },
-        proUn: {
-            unId: formData.proUnId
-        }
-    };
-}
+import { RequestProdutoType, ResponseProdutoType } from '@/hooks/produto/types'
+import apiClient from "./api/apiCllient";
 
 export const ProdutoServices = {
-    async listarTodos(status: boolean): Promise<ProdutoType[]> {
+    async listarTodos(status: boolean): Promise<ResponseProdutoType[]> {
         const response = await apiClient.get('/produto/', {
             params: {
                 status: status
@@ -29,14 +11,14 @@ export const ProdutoServices = {
         return response.data
     },
 
-    async criar(dados: FormProdutoType): Promise<ProdutoType>{
-        const response = await apiClient.post('/produto/', formatarDadosApi(dados))
+    async criar(dados: RequestProdutoType): Promise<ResponseProdutoType>{
+        const response = await apiClient.post('/produto/',dados)
         return response.data
        
     },
 
-    async atualizar(id: number, dados: FormProdutoType): Promise<ProdutoType>{
-        const response = await apiClient.put(`/produto/${id}`, formatarDadosApi(dados))
+    async atualizar(id: number, dados: RequestProdutoType): Promise<ResponseProdutoType>{
+        const response = await apiClient.put(`/produto/${id}`,dados)
         return response.data
        
     },

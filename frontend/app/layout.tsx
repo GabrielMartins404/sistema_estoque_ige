@@ -5,6 +5,8 @@ import { AuthProvider } from '@/contexts/UsuarioContext'
 import ErrorNotification from '@/components/ErrorNotification'
 import ApiErrorHandler from '@/components/ApiErrorHandler'
 import './globals.css'
+import { QueryProvider } from '@/providers/QueryProvider'
+import { Toaster } from '@/components/ui/toaster'
 
 export const metadata: Metadata = {
   title: 'Estoque IGE',
@@ -20,20 +22,22 @@ export default function RootLayout({
   return (
     <html lang="pt-br">
       <body>
-        {/* Provider de erros */}
-        <ErrorProvider>
-          {/* Provider com as informações do usuário */}
-          <AuthProvider>
-            {/* Componente que escuta e dispara erros da API */}
-            <ApiErrorHandler />
-
-            {/* Notificações globais de erro */}
-            <ErrorNotification />
-
-            {/* Todo o resto da sua aplicação */}
-            {children}
-          </AuthProvider>
-        </ErrorProvider>
+        {/* Provider de queries */}
+        <QueryProvider>
+          {/* Provider de erros */}
+          <ErrorProvider>
+            {/* Provider com as informações do usuário */}
+            <AuthProvider>
+              {/* Componente que escuta e dispara erros da API */}
+              {/* <ApiErrorHandler /> */}
+              {/* Notificações globais de erro */}
+              <ErrorNotification />          
+              {/* Todo o resto da sua aplicação */}
+              {children}
+            </AuthProvider>
+          </ErrorProvider>
+          <Toaster />
+        </QueryProvider>
       </body>
     </html>
   )

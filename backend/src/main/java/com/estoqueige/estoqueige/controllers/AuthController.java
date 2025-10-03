@@ -3,7 +3,7 @@ package com.estoqueige.estoqueige.controllers;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.estoqueige.estoqueige.models.Usuario;
+import com.estoqueige.estoqueige.models.usuario.Usuario;
 import com.estoqueige.estoqueige.services.UsuarioServices;
 
 import org.springframework.beans.factory.annotation.Autowired;
