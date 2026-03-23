@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.estoqueige.estoqueige.models.Requisitante;
+import com.estoqueige.estoqueige.models.requisitante.Requisitante;
 
 @Repository
 public interface RequisitanteRepository extends JpaRepository<Requisitante, Long>{

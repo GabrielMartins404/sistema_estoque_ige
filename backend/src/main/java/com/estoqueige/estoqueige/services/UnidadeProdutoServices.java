@@ -4,20 +4,20 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.transaction.Transactional;
-import org.springframework.beans.BeanUtils;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
-import com.estoqueige.estoqueige.models.UnidadeProduto;
+import com.estoqueige.estoqueige.models.unidadeProduto.RequestUnidadeProdutoDTO;
+import com.estoqueige.estoqueige.models.unidadeProduto.ResponseUnidadeProdutoDTO;
+import com.estoqueige.estoqueige.models.unidadeProduto.UnidadeProduto;
 import com.estoqueige.estoqueige.repositories.UnidadeProdutoRepository;
 import com.estoqueige.estoqueige.services.exceptions.ErroAoBuscarObjetos;
 
 @Service
+@RequiredArgsConstructor
 public class UnidadeProdutoServices {
     private final UnidadeProdutoRepository unidadeProdutoRepository;
-    
-    public UnidadeProdutoServices(UnidadeProdutoRepository unidadeProdutoRepository) {
-        this.unidadeProdutoRepository = unidadeProdutoRepository;
-    }
 
     /* Métodos dos services */
 
@@ -26,30 +26,35 @@ public class UnidadeProdutoServices {
         return unidadeProduto.orElseThrow(() -> new ErroAoBuscarObjetos("Falha ao buscar Unidade do Produto por ID: "+ id));
     }
 
-    public List<UnidadeProduto> buscarTodasUnidadeProdutos(Boolean status){
+    public List<ResponseUnidadeProdutoDTO> buscarTodasUnidadeProdutos(Boolean status){
         List<UnidadeProduto> unidadeProdutos = this.unidadeProdutoRepository.buscarUnidades(status);
-        return unidadeProdutos;
+        return ResponseUnidadeProdutoDTO.fromEntityList(unidadeProdutos);
     }
 
     @Transactional
-    public UnidadeProduto cadastrarUnidadeProduto(UnidadeProduto unidadeProduto){
-        unidadeProduto.setUnId(null);
-        return this.unidadeProdutoRepository.save(unidadeProduto);
+    public ResponseUnidadeProdutoDTO cadastrarUnidadeProduto(RequestUnidadeProdutoDTO dto){
+        UnidadeProduto unidadeProduto = new UnidadeProduto(
+            null,
+            dto.unNome(),
+            dto.unSigla(),
+            true,
+            null
+        );
+        return ResponseUnidadeProdutoDTO.fromEntity(this.unidadeProdutoRepository.save(unidadeProduto));
     }
 
     @Transactional
-    public UnidadeProduto atualizarUnidadeProduto(UnidadeProduto unidadeProduto){
-        UnidadeProduto newUnidadeProduto = this.buscarUnidadeProdutoPorId(unidadeProduto.getUnId());
-
-        BeanUtils.copyProperties(unidadeProduto, newUnidadeProduto, "unId");
-        this.unidadeProdutoRepository.save(newUnidadeProduto);
-        return newUnidadeProduto;
+    public ResponseUnidadeProdutoDTO atualizarUnidadeProduto(Long id, RequestUnidadeProdutoDTO dto){
+        UnidadeProduto newUnidadeProduto = this.buscarUnidadeProdutoPorId(id);
+        newUnidadeProduto.setUnNome(dto.unNome());
+        newUnidadeProduto.setUnSigla(dto.unSigla());
+        return ResponseUnidadeProdutoDTO.fromEntity(this.unidadeProdutoRepository.save(newUnidadeProduto));
     }
 
-     public UnidadeProduto alterarStatusAtivoUnidadeProduto(Long id) {
-        UnidadeProduto UnidadeProduto = this.buscarUnidadeProdutoPorId(id);
+     public ResponseUnidadeProdutoDTO alterarStatusAtivoUnidadeProduto(Long id) {
+        UnidadeProduto unidadeProduto = this.buscarUnidadeProdutoPorId(id);
 
-        UnidadeProduto.setIsAtivo(!UnidadeProduto.getIsAtivo());
-        return this.atualizarUnidadeProduto(UnidadeProduto);
+        unidadeProduto.setIsAtivo(!unidadeProduto.getIsAtivo());
+        return ResponseUnidadeProdutoDTO.fromEntity(this.unidadeProdutoRepository.save(unidadeProduto));
     }
 }

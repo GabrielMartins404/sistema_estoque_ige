@@ -1,20 +1,9 @@
+import { RequestRequisitanteType, ResponseRequisitanteType } from '@/hooks/requisitante/types';
 import apiClient from './api/apiCllient'
 import type { RequisitanteType } from '@/types/requisitanteType';
 
-//Essa função formata os dados provenientes da API para envio ao backEnd
-const formatarDadosApi = (formData: RequisitanteType) =>{
-    return {
-        reqNome: formData.reqNome,
-        facRequisitante:{
-            facId:formData.reqFaqId,
-            facNome: formData.reqFacNome,
-            facSigla: formData.reqFacSigla
-        }
-    };
-}
-
 export const RequisitanteServices = {
-    async listarTodos(status: boolean): Promise<RequisitanteType[]> {
+    async listarTodos(status: boolean): Promise<ResponseRequisitanteType[]> {
         const response = await apiClient.get('/requisitante/',{
             params: {
                 status: status
@@ -24,14 +13,17 @@ export const RequisitanteServices = {
             
     },
 
-    async criar(dados: RequisitanteType): Promise<RequisitanteType>{
-        const response = await apiClient.post('/requisitante/', formatarDadosApi(dados))
+    async criar(dados: RequestRequisitanteType): Promise<ResponseRequisitanteType>{
+        if(dados.facRequisitanteId === 0){
+            dados.facRequisitanteId = undefined
+        }
+        const response = await apiClient.post('/requisitante/', dados)
         return response.data
         
     },
 
-    async atualizar(id: number, dados: RequisitanteType): Promise<RequisitanteType>{
-        const response = await apiClient.put(`/requisitante/${id}`, formatarDadosApi(dados))
+    async atualizar(id: number, dados: RequestRequisitanteType): Promise<ResponseRequisitanteType>{
+        const response = await apiClient.put(`/requisitante/${id}`, dados)
         return response.data
     },
 

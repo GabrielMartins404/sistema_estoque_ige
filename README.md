@@ -110,17 +110,16 @@ No ambiente de desenvolvimento, utilizam-se as credenciais acima. Entretanto, em
    ```bash
    https://github.com/GabrielMartins404/sistema_estoque_ige.git
    ```
-2. Acesse o arquivo .env.dist e o copie. Dessa cópia,  a renomeie para .env. Dentro desse arquivo, faça as alterações que achar necessário conforme o que está descrito na próxima sessão.
 
-3. Na raiz do projeto (onde está o `docker-compose.yml`):
+2. Na raiz do projeto (onde está o `docker-compose.yml`):
    ```bash
    docker-compose up --build
    ```
 
-4. (Opcional) Para finalizar:
-   ```bash
-   docker-compose down
-   ```
+Para finalizar:
+```bash
+docker-compose down
+```
 **OBS:** No arquivo `docker-compose.yml`, há uma parte que realiza a verificação das variaveis de ambiente, contido no espaço `environment`.
 
 ## 🔐 Configuração de Variáveis de Ambiente

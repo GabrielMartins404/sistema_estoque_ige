@@ -1,104 +1,93 @@
 "use client"
-
+import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react"
-import { Package, FileText, ShoppingCart, Users, BarChart2, Settings, LogOut, BookOpen, Clipboard, UserRoundPlus, ShoppingBasket, Box, PackagePlus, Notebook, User, List } from "lucide-react"
-import { useError } from "@/contexts/NotificationContext"
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import {  FileText, ShoppingCart, Users, BarChart2, LogOut, BookOpen, Clipboard, UserRoundPlus, Box, PackagePlus, Notebook, User, List } from "lucide-react"
 import Link from "next/link"
 import ErrorNotification from "@/components/ErrorNotification"
 import { useAuth } from "@/contexts/UsuarioContext"
 import ProtectedRoute from "@/components/ProtectedRoutes"
-import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog"
-import { DialogTitle } from "@radix-ui/react-dialog"
-import { AlterarSenhaType } from "@/types/usuarioype"
-import { useUsuario } from "@/hooks/useUsuario"
-import {RelatorioServices} from '@/services/relatorioServices'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import Loading from "@/components/Loading"
-import { ProdutoMaisMovimentadoType, ProdutosPorRequisitanteType } from "@/types/RelatorioType"
+import { Button } from "@/components/ui/button"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input"
+import { useUsuarioManager } from "@/hooks/usuario/useUsuario";
+import { RequestAlteraSenhaUsuarioType } from "@/hooks/usuario/types/RequestUsuario.type";
+
+import {
+  useGetProdutosMaisMovimentados,
+  useGetProdutosPorRequisitante,
+  useGetQtdMov,
+  useGetQtdProdutosAtivos,
+  useGetQtdProdutosAbaixoMin,
+} from "@/hooks/relatorios/api"
+
+//  Schema de validação com Zod, incluindo o array de produtos
+const alterarSenhaSchema = z.object({
+  senhaAntiga: z.string().nonempty("A senha antiga não pode ser vazia"),
+  novaSenha: z.string().min(6, "A nova senha deve ter no mínimo 6 caracteres.").nonempty("A senha não pode ser vazia"),
+  confirmaSenha: z.string().nonempty("A senha não pode ser vazia"),
+}).refine(data => {
+  // A validação da senha só é necessária se o campo senha for preenchido
+  if (data.novaSenha) {
+    return data.novaSenha === data.confirmaSenha;
+  }
+  return true;
+}, {
+  message: "As senhas não conferem.",
+  path: ["confirmaSenha"], // O erro aparecerá no campo de confirmação
+});
+
+
+export type AlterarSenhaFormValues = z.infer<typeof alterarSenhaSchema>;
 
 export default function Dashboard() {
-  const {logout, usuario, isAutenticado} = useAuth()
+  const { atualizarSenhaUsuario, loading: loadSenha } = useUsuarioManager(true);
+  const { logout, usuario, isAutenticado } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [openDialog, setOpenDialog] = useState<"senha" | null>(null)
   const [senhaAntiga, setSenhaAntiga] = useState("")
   const [novaSenha, setNovaSenha] = useState("")
   const [confirmaSenha, setConfirmaSenha] = useState("")
-  const [loadSenha, setLoadSenha] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [qtdProdutosAbaixoMin, setQtdProdutosAbaixoMin] = useState(0)
-  const [qtdProdutosAtivo, setQtdProdutosAtivo] = useState(0)
-  const [qtdSaida, setQtdSaida] = useState(0)
-  const [qtdEntrada, setQtdEntrada] = useState(0)
-  const [produtosPorRequisitante, setProdutosPorRequisitante] = useState<ProdutosPorRequisitanteType[]>([])
-  const [produtosMaisMovimentado, setprodutosMaisMovimentado] = useState<ProdutoMaisMovimentadoType[]>([])
-  const usuarioHook = useUsuario()
 
-   useEffect(() => {
-      const fetchData = async () => {
-        setLoading(true)
-        try {
-          const [
-            produtosAbaixoMin,
-            entrada,
-            saida,
-            produtosAtivos,
-            maisMovimentados,
-            porRequisitante
-          ] = await Promise.all([
-            RelatorioServices.buscarProdutosAbaixoMin(),
-            RelatorioServices.buscarQtdMov('E', 'F'),
-            RelatorioServices.buscarQtdMov('S', 'F'),
-            RelatorioServices.buscarQtdProdutosAtivos(),
-            RelatorioServices.produtoMaisMovimentado(),
-            RelatorioServices.produtosPorRequisitante()
-          ])
-    
-          setQtdProdutosAbaixoMin(produtosAbaixoMin)
-          setQtdEntrada(entrada)
-          setQtdSaida(saida)
-          setQtdProdutosAtivo(produtosAtivos)
-          setprodutosMaisMovimentado(maisMovimentados)
-          setProdutosPorRequisitante(porRequisitante)
-        } catch (error) {
-          console.error("Erro ao carregar dados:", error)
-        }finally{
-          setLoading(false)
-        }
-      }
-    
-      //Esse IF é implementado pois o sistema faz a consulta no back end sem antes o usuário estar logado. Desse modo, só irá fazer assim que o usuário estiver logado
-      if(isAutenticado){
-        fetchData()
-      }
-      
-    }, [isAutenticado])
+  const { data: produtosMaisMovimentado = [] } = useGetProdutosMaisMovimentados()
+  const { data: produtosPorRequisitante = [] } = useGetProdutosPorRequisitante()
+  const { data: qtdMovEntrada = 0 } = useGetQtdMov('E', 'F')
+  const { data: qtdMovSaida = 0 } = useGetQtdMov('S', 'F')
+  const { data: qtdProdutosAtivos = 0 } = useGetQtdProdutosAtivos()
+  const { data: qtdProdutosAbaixoMin = 0, isLoading: isLoadingQtdProdutosAbaixoMin, isError: isErrorQtdProdutosAbaixoMin, error: errorQtdProdutosAbaixoMin } = useGetQtdProdutosAbaixoMin()
+
+  const form = useForm<AlterarSenhaFormValues>({
+    resolver: zodResolver(alterarSenhaSchema),
+    // Define valores padrão para TODOS os campos do schema.
+    defaultValues: {
+      senhaAntiga: "",
+      novaSenha: "",
+      confirmaSenha: ""
+    },
+  });
 
   const alterarSenhaUsuario = (id: number | undefined) => {
-    if(id == undefined){
+    if (id == undefined) {
       return
     }
-    if(confirmaSenha != novaSenha){
-      alert("Senha de confirmação difere da senha digitada")
-      return
+    const dados: RequestAlteraSenhaUsuarioType = {
+      usuSenhaNova: form.getValues().novaSenha,
+      usuSenhaAntiga: form.getValues().senhaAntiga
     }
-    const dados: AlterarSenhaType = {
-      novaSenha: novaSenha,
-      senhaAntiga: senhaAntiga
-    }
-    setLoadSenha(true)
-    try {
-      usuarioHook.alterarSenhaUsuario(id, dados)
-      setConfirmaSenha("")
-      setNovaSenha("")
-      setSenhaAntiga("")
-      setOpenDialog(null)
-    } catch (error) {
-      console.log("Erro")
-    }finally{
-      setLoadSenha(false)
-    }
-    
+    atualizarSenhaUsuario({ id: id, dados: dados })
+    if (loadSenha) return <Loading />;
+    setOpenDialog(null)
+    setSenhaAntiga("")
+    setNovaSenha("")
+    setConfirmaSenha("")
+    form.reset()
+
+
   }
   if (loading) return <Loading />;
   return (
@@ -108,9 +97,8 @@ export default function Dashboard() {
         {/* Avaliar se esse componente é realmente necessário aqui */}
         <ErrorNotification />
         <aside
-          className={`bg-[#1e3a8a] text-white ${
-            sidebarOpen ? "w-64" : "w-20"
-          } transition-all duration-300 h-screen relative flex flex-col`}
+          className={`bg-[#1e3a8a] text-white ${sidebarOpen ? "w-64" : "w-20"
+            } transition-all duration-300 h-screen relative flex flex-col`}
         >
           <div className="p-4 flex justify-between items-center">
             <h2 className={`font-bold ${sidebarOpen ? "block" : "hidden"}`}>
@@ -239,7 +227,7 @@ export default function Dashboard() {
                 </Link>
               </li>
 
-    
+
               <li>
                 <button
                   onClick={() => logout()}
@@ -248,7 +236,7 @@ export default function Dashboard() {
                   <LogOut className="h-5 w-5" />
                   {sidebarOpen && <span>Sair</span>}
                 </button>
-            </li>
+              </li>
             </ul>
           </nav>
         </aside>
@@ -262,7 +250,7 @@ export default function Dashboard() {
                 <span>Bem-vindo, {usuario?.usuNome}</span>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon" onClick={() =>console.log("Oi")}>
+                    <Button variant="outline" size="icon" onClick={() => console.log("Oi")}>
                       <User className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -273,11 +261,11 @@ export default function Dashboard() {
                     <DropdownMenuItem onClick={logout}>
                       <LogOut className="h-5 w-5" />
                       Sair
-                      
+
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                
+
               </div>
             </div>
           </header>
@@ -288,20 +276,61 @@ export default function Dashboard() {
               </DialogHeader>
               {/* Formulário de alteração de senha */}
               {
-                loadSenha ? 
+                loadSenha ?
                   <Loading />
-                :
-                  <form className="space-y-4" onSubmit={(e) => {
-                    e.preventDefault()
-                    alterarSenhaUsuario(usuario?.usuId)
-                  }}>
-                    <input type="password" placeholder="Senha atual" name="senhaAntiga" className="w-full border rounded p-2" onChange={(e) => setSenhaAntiga(e.target.value)} />
-                    <input type="password" placeholder="Nova senha" name="novaSenha" className="w-full border rounded p-2" onChange={(e) => setNovaSenha(e.target.value)}/>
-                    <input type="password" placeholder="Confirmar nova senha" className="w-full border rounded p-2" onChange={(e) => setConfirmaSenha(e.target.value)}/>
-                    <Button type="submit">Alterar Senha</Button>
-                  </form>
+                  :
+                  <Form {...form}>
+                    <form
+                      className="space-y-4"
+                      onSubmit={form.handleSubmit(() => alterarSenhaUsuario(usuario?.usuId))}
+                    >
+                      <FormField
+                        control={form.control}
+                        name="senhaAntiga"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Senha Antiga</FormLabel>
+                            <FormControl>
+                              <Input {...field} type="password" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="novaSenha"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nova Senha</FormLabel>
+                            <FormControl>
+                              <Input {...field} type="password" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="confirmaSenha"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Confirmar Senha</FormLabel>
+                            <FormControl>
+                              <Input {...field} type="password" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <Button type="submit">Alterar Senha</Button>
+                    </form>
+                  </Form>
               }
-             
+
             </DialogContent>
           </Dialog>
 
@@ -309,7 +338,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <h3 className="text-gray-500 mb-2">Total de produtos</h3>
-                <p className="text-3xl font-bold">{qtdProdutosAtivo}</p>
+                <p className="text-3xl font-bold">{qtdProdutosAtivos}</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <h3 className="text-gray-500 mb-2">Produtos em Baixa</h3>
@@ -317,11 +346,11 @@ export default function Dashboard() {
               </div>
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <h3 className="text-gray-500 mb-2">QTD de saidas do mês</h3>
-                <p className="text-3xl font-bold">{qtdSaida}</p>
+                <p className="text-3xl font-bold">{qtdMovSaida}</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <h3 className="text-gray-500 mb-2">QTD de entradas do mês</h3>
-                <p className="text-3xl font-bold">{qtdEntrada}</p>
+                <p className="text-3xl font-bold">{qtdMovEntrada}</p>
               </div>
             </div>
 
@@ -343,21 +372,21 @@ export default function Dashboard() {
                     {
                       produtosMaisMovimentado.map((produto, index) => (
                         <tr className="border-b" key={index}>
-                          <td className="py-2">{index+1}º</td>
+                          <td className="py-2">{index + 1}º</td>
                           <td className="py-2">{produto.produto}</td>
                           <td className="py-2">{produto.qtdMov}</td>
                           <td className="py-2">{produto.qtdTotal}</td>
                           <td className="py-2">{produto.estoque}</td>
                           <td className="py-2">
-                          {produto.isAbaixoMin ? (
-                            <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Baixo</span>
-                          ) : (
-                            <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Normal</span>
-                          )}
+                            {produto.isAbaixoMin ? (
+                              <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Baixo</span>
+                            ) : (
+                              <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Normal</span>
+                            )}
                           </td>
                         </tr>
-                      )  
-                    )}
+                      )
+                      )}
                   </tbody>
                 </table>
               </div>
@@ -370,20 +399,20 @@ export default function Dashboard() {
                       <th className="text-left py-2">Nº</th>
                       <th className="text-left py-2">Requisitante</th>
                       <th className="text-left py-2">QTD. Movimentações</th>
-                      <th className="text-left py-2">Total movimentado</th>                    
+                      <th className="text-left py-2">Total movimentado</th>
                     </tr>
                   </thead>
                   <tbody>
                     {
                       produtosPorRequisitante.map((requisitante, index) => (
                         <tr className="border-b" key={index}>
-                          <td className="py-2">{index+1}º</td>
+                          <td className="py-2">{index + 1}º</td>
                           <td className="py-2">{requisitante.requisitante}</td>
                           <td className="py-2">{requisitante.totalMovimentacao}</td>
                           <td className="py-2">{requisitante.totalProdutos}</td>
                         </tr>
-                      )  
-                    )}
+                      )
+                      )}
                   </tbody>
                 </table>
               </div>

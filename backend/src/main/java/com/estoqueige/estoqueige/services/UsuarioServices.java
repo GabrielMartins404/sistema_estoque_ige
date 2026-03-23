@@ -1,17 +1,21 @@
 package com.estoqueige.estoqueige.services;
 
-import com.estoqueige.estoqueige.models.Usuario;
-import com.estoqueige.estoqueige.models.enums.PerfisUsuario;
+import com.estoqueige.estoqueige.models.usuario.PerfisUsuario;
+import com.estoqueige.estoqueige.models.usuario.RequestAtualizaSenhaUsuarioDTO;
+import com.estoqueige.estoqueige.models.usuario.RequestAtualizaUsuarioDTO;
+import com.estoqueige.estoqueige.models.usuario.RequestCadastroUsuarioDTO;
+import com.estoqueige.estoqueige.models.usuario.ResponseUsuarioDTO;
+import com.estoqueige.estoqueige.models.usuario.Usuario;
 import com.estoqueige.estoqueige.repositories.UsuarioRepository;
 import com.estoqueige.estoqueige.security.JWTutil;
 import com.estoqueige.estoqueige.security.UserSpringSecurity;
 import com.estoqueige.estoqueige.services.exceptions.ErroAoBuscarObjetos;
 import com.estoqueige.estoqueige.services.exceptions.ErroAutorizacao;
-import com.estoqueige.estoqueige.services.exceptions.ErroCamposFixos;
 import com.estoqueige.estoqueige.services.exceptions.ErroValidacoesObjRepetidos;
 
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,21 +24,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UsuarioServices {
 
-
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder; //Aqui serve para criptografar
-
-    @Autowired
-    private JWTutil jwtUtil;
-    
+    private final BCryptPasswordEncoder bCryptPasswordEncoder; //Aqui serve para criptografar
+    private final JWTutil jwtUtil;
     private final UsuarioRepository usuarioRepository;
-
-    public UsuarioServices(UsuarioRepository usuarioRepository) {
-        this.usuarioRepository = usuarioRepository;
-
-    }
 
     /* Método services */
     public static Boolean validarUsuario(String mensagem) {
@@ -77,56 +72,44 @@ public class UsuarioServices {
     }
 
     @Transactional
-    public Usuario cadastrarUsuario(Usuario usuario) {
+    public ResponseUsuarioDTO cadastrarUsuario(RequestCadastroUsuarioDTO dto) {
         
-        if(this.usuarioRepository.findByUsuLogin(usuario.getUsuLogin()).isPresent()){
+        if(this.usuarioRepository.findByUsuLogin(dto.usuLogin()).isPresent()){
             throw new ErroValidacoesObjRepetidos("Já existe um usuário cadastrado com esse login! Realizar login, por gentileza");
         }else{
-            usuario.setUsuId(null);
-            usuario.setUsuSenha(this.bCryptPasswordEncoder.encode(usuario.getUsuSenha())); //Esse método criptografa a senha
-
-            // Validação do perfil de usuário
-            if (usuario.getUsuPerfil() == null) {
-                //Se o usuário passado for inválido, o mesmo será almoxarifado
-                usuario.setUsuPerfil(PerfisUsuario.ALMOXARIFADO);
-            } else if (usuario.getUsuPerfil() != PerfisUsuario.ADMIN && usuario.getUsuPerfil() != PerfisUsuario.ALMOXARIFADO) {
-                throw new ErroCamposFixos("O perfil de usuário é inválido");
-            }
+            Usuario usuario = new Usuario(
+                null, 
+                dto.usuNome(),
+                dto.usuLogin(),
+                this.bCryptPasswordEncoder.encode(dto.usuSenha()), // Esse método criptografa a senha
+                true,
+                dto.usuPerfil() == null ? PerfisUsuario.ALMOXARIFADO : dto.usuPerfil()
+            );
             
-            return this.usuarioRepository.save(usuario);
+            return ResponseUsuarioDTO.fromEntity(this.usuarioRepository.save(usuario));
         }
     }
 
     @Transactional
-    public Usuario atualizarUsuario(Usuario usuario) {
-        Usuario newUsuario = this.buscarUsuarioPorId(usuario.getUsuId());
-
-        if (usuario.getUsuNome() != null && !usuario.getUsuNome().isBlank()) {
-            newUsuario.setUsuNome(usuario.getUsuNome());
-        }
-        
-        if (usuario.getUsuPerfil() != null) {
-            newUsuario.setUsuPerfil(usuario.getUsuPerfil());
-        }
-        
-        if (usuario.getIsAtivo() != null) {
-            newUsuario.setIsAtivo(usuario.getIsAtivo());
-        }
+    public ResponseUsuarioDTO atualizarUsuario(Long id, RequestAtualizaUsuarioDTO dto) {
+        Usuario newUsuario = this.buscarUsuarioPorId(id);
+        newUsuario.setUsuNome(dto.usuNome());
+        newUsuario.setUsuPerfil(dto.usuPerfil());
 
         this.usuarioRepository.save(newUsuario);
 
-        return newUsuario;
+        return ResponseUsuarioDTO.fromEntity(newUsuario);
     }
 
-    public Usuario alterarSenhaDeUsuario(Long id, String senha, String senhaAntiga){
+    public Usuario alterarSenhaDeUsuario(Long id, RequestAtualizaSenhaUsuarioDTO dto){
         if(!validarUsuario("Usuário não tem permissão para alterar senha de outros usuários")){
             return null;
         }
         Usuario usuario = this.buscarUsuarioPorId(id);
 
-        if(senha != null && !senha.isBlank()){
-            if(this.bCryptPasswordEncoder.matches(senhaAntiga, usuario.getUsuSenha())){ //Se a senha passada pelo usuário após a criptografia é igual ao hash do banco de dados
-                usuario.setUsuSenha(this.bCryptPasswordEncoder.encode(senha));
+        if(dto.usuSenhaNova() != null && !dto.usuSenhaNova().isBlank()){
+            if(this.bCryptPasswordEncoder.matches(dto.usuSenhaAntiga(), usuario.getUsuSenha())){ //Se a senha passada pelo usuário após a criptografia é igual ao hash do banco de dados
+                usuario.setUsuSenha(this.bCryptPasswordEncoder.encode(dto.usuSenhaNova()));
             }else{
                 throw new ErroAutorizacao("Senha atual não é a mesma no banco de dados!"); //Refatorar essa mensagem
             }

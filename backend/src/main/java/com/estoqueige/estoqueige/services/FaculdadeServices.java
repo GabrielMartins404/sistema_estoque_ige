@@ -4,20 +4,20 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.transaction.Transactional;
-import org.springframework.beans.BeanUtils;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
-import com.estoqueige.estoqueige.models.Faculdade;
+import com.estoqueige.estoqueige.models.faculdade.Faculdade;
+import com.estoqueige.estoqueige.models.faculdade.RequestFaculdadeDTO;
+import com.estoqueige.estoqueige.models.faculdade.ResponseFaculdadeDTO;
 import com.estoqueige.estoqueige.repositories.FaculdadeRepository;
 import com.estoqueige.estoqueige.services.exceptions.ErroAoBuscarObjetos;
 
 @Service
+@RequiredArgsConstructor
 public class FaculdadeServices {
     private final FaculdadeRepository faculdadeRepository;
-    
-    public FaculdadeServices(FaculdadeRepository faculdadeRepository) {
-        this.faculdadeRepository = faculdadeRepository;
-    }
 
     /* Métodos dos services */
 
@@ -26,30 +26,34 @@ public class FaculdadeServices {
         return faculdade.orElseThrow(() -> new ErroAoBuscarObjetos("Falha ao buscar faculdade por ID: "+ id));
     }
 
-    public List<Faculdade> buscarTodasFaculdades(Boolean status){
+    public List<ResponseFaculdadeDTO> buscarTodasFaculdades(Boolean status){
         List<Faculdade> faculdades = this.faculdadeRepository.buscarFaculdades(status);
-        return faculdades;
+        return ResponseFaculdadeDTO.fromEntityList(faculdades);
     }
 
     @Transactional
-    public Faculdade cadastrarFaculdade(Faculdade faculdade){
-        faculdade.setFacId(null);
-        return this.faculdadeRepository.save(faculdade);
+    public ResponseFaculdadeDTO cadastrarFaculdade(RequestFaculdadeDTO dto){
+        Faculdade faculdade = new Faculdade(
+            null,
+            dto.facNome(),
+            dto.facSigla(),
+            true,
+            null
+        );
+        return ResponseFaculdadeDTO.fromEntity(this.faculdadeRepository.save(faculdade));
     }
 
     @Transactional
-    public Faculdade atualizarFaculdade(Faculdade faculdade){
-        Faculdade newFaculdade = this.buscarFaculdadePorId(faculdade.getFacId());
-
-        BeanUtils.copyProperties(faculdade, newFaculdade, "facId");
-        this.faculdadeRepository.save(newFaculdade);
-        return newFaculdade;
+    public ResponseFaculdadeDTO atualizarFaculdade(Long id, RequestFaculdadeDTO dto){
+        Faculdade newFaculdade = this.buscarFaculdadePorId(id);
+        newFaculdade.setFacNome(dto.facNome());
+        newFaculdade.setFacSigla(dto.facSigla());
+        return ResponseFaculdadeDTO.fromEntity(this.faculdadeRepository.save(newFaculdade));
     }
 
-     public Faculdade alterarStatusAtivoFaculdade(Long id) {
+     public ResponseFaculdadeDTO alterarStatusAtivoFaculdade(Long id) {
         Faculdade faculdade = this.buscarFaculdadePorId(id);
-
         faculdade.setIsAtivo(!faculdade.getIsAtivo());
-        return this.atualizarFaculdade(faculdade);
+        return ResponseFaculdadeDTO.fromEntity(this.faculdadeRepository.save(faculdade));
     }
 }

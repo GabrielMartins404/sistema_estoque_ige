@@ -16,10 +16,13 @@ const ErrorNotification = () => {
         {errors.map((error) => (
           <div 
             key={error.id} 
-            className={`error-message ${error.tipo || 'error'}`}
+            className={`error-message ${error.tipo || 'error'} align-items-center justify-content-center`}
             onClick={() => removeError(error)}
           >
-            {error.mensagem}
+            <div>
+              <b>{error.titulo && error.titulo}</b>
+              <p>{error.mensagem}</p>
+            </div>
             <button 
               onClick={(e) => {
                 e.stopPropagation();

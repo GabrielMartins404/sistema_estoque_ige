@@ -4,7 +4,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.estoqueige.estoqueige.models.Requisitante;
+import com.estoqueige.estoqueige.models.requisitante.Requisitante;
 import com.estoqueige.estoqueige.repositories.RequisitanteRepository;
 
 @Configuration

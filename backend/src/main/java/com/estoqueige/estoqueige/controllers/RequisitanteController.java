@@ -15,8 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.estoqueige.estoqueige.dto.RequisitanteDto;
-import com.estoqueige.estoqueige.models.Requisitante;
+import com.estoqueige.estoqueige.models.requisitante.Requisitante;
+import com.estoqueige.estoqueige.models.requisitante.RequestRequisitanteDTO;
+import com.estoqueige.estoqueige.models.requisitante.ResponseRequisitanteDTO;
 import com.estoqueige.estoqueige.services.RequisitanteServices;
 
 import jakarta.validation.Valid;
@@ -34,35 +35,34 @@ public class RequisitanteController {
 
     
     @GetMapping("/{idRequisitante}")
-    public ResponseEntity<Requisitante> buscarRequisitantesPorId(@PathVariable Long idRequisitante) {
+    public ResponseEntity<ResponseRequisitanteDTO> buscarRequisitantesPorId(@PathVariable Long idRequisitante) {
         Requisitante requisitante = this.requisitanteServices.buscarRequisitantePorId(idRequisitante);
-        return ResponseEntity.ok().body(requisitante);
+        return ResponseEntity.ok().body(ResponseRequisitanteDTO.fromEntity(requisitante));
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<RequisitanteDto>> buscarRequisitantes(@RequestParam Boolean status) {
-        List<RequisitanteDto> requisitantes = this.requisitanteServices.buscarTodosRequisitantes(status);
+    public ResponseEntity<List<ResponseRequisitanteDTO>> buscarRequisitantes(@RequestParam Boolean status) {
+        List<ResponseRequisitanteDTO> requisitantes = this.requisitanteServices.buscarTodosRequisitantes(status);
         return ResponseEntity.ok().body(requisitantes);
     }
 
     @PostMapping("/")
-    public ResponseEntity<RequisitanteDto> criarRequisitante(@Valid @RequestBody Requisitante requisitante){
-        RequisitanteDto requisitanteCriado = this.requisitanteServices.cadastrarRequisitante(requisitante);
+    public ResponseEntity<ResponseRequisitanteDTO> criarRequisitante(@Valid @RequestBody RequestRequisitanteDTO requisitanteDTO){
+        ResponseRequisitanteDTO requisitanteCriado = this.requisitanteServices.cadastrarRequisitante(requisitanteDTO);
         
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{idRequisitante}").buildAndExpand(requisitante.getReqId()).toUri();
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{idRequisitante}").buildAndExpand(requisitanteCriado.reqId()).toUri();
         return ResponseEntity.created(uri).body(requisitanteCriado);
     }
 
     @PutMapping("/{idRequisitante}")
-    public ResponseEntity<RequisitanteDto> atualizarRequisitante(@Valid @RequestBody Requisitante requisitante, @PathVariable Long idRequisitante){
-        requisitante.setReqId(idRequisitante);
-        return ResponseEntity.ok(this.requisitanteServices.atualizarRequisitante(requisitante));
+    public ResponseEntity<ResponseRequisitanteDTO> atualizarRequisitante(@Valid @RequestBody RequestRequisitanteDTO requisitanteDTO, @PathVariable Long idRequisitante){
+        return ResponseEntity.ok(this.requisitanteServices.atualizarRequisitante(idRequisitante, requisitanteDTO));
     }
 
     @PutMapping("/inativar/{idRequisitante}")
-    public ResponseEntity<Void> inativarRequisitante(@Valid @PathVariable Long idRequisitante){
-        this.requisitanteServices.alterarStatusAtivoRequisitante(idRequisitante);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<ResponseRequisitanteDTO> inativarRequisitante(@Valid @PathVariable Long idRequisitante){
+        ResponseRequisitanteDTO requisitante = this.requisitanteServices.alterarStatusAtivoRequisitante(idRequisitante);
+        return ResponseEntity.ok().body(requisitante);
     }
     
 }

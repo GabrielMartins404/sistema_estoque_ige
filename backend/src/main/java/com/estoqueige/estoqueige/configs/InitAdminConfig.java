@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import com.estoqueige.estoqueige.models.Usuario;
-import com.estoqueige.estoqueige.models.enums.PerfisUsuario;
+import com.estoqueige.estoqueige.models.usuario.PerfisUsuario;
+import com.estoqueige.estoqueige.models.usuario.Usuario;
 import com.estoqueige.estoqueige.repositories.UsuarioRepository;
 
 //Essa configuração serve unicamente para cadastrar um usuário adm assim que a aplicação é iniciada

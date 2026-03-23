@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.estoqueige.estoqueige.dto.MovimentacaoDto;
-import com.estoqueige.estoqueige.models.Movimentacao;
+import com.estoqueige.estoqueige.models.movimentacao.ResponseMovimentacaoDTO;
+import com.estoqueige.estoqueige.models.movimentacao.RequestMovimentacaoDTO;
 import com.estoqueige.estoqueige.services.MovimentacaoServices;
 
 import jakarta.validation.Valid;
@@ -32,23 +32,23 @@ public class MovimentacaoController {
     }
 
     @GetMapping("/{idMovimentacao}")
-    public ResponseEntity<MovimentacaoDto> buscarMovimentacaosPorId(@PathVariable Long idMovimentacao) {
-        MovimentacaoDto movimentacao = this.movimentacaoServices.retornarMovimentacaoDto(idMovimentacao);
+    public ResponseEntity<ResponseMovimentacaoDTO> buscarMovimentacaosPorId(@PathVariable Long idMovimentacao) {
+        ResponseMovimentacaoDTO movimentacao = this.movimentacaoServices.retornarMovimentacaoDto(idMovimentacao);
         return ResponseEntity.ok().body(movimentacao);
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<MovimentacaoDto>> buscarMovimentacaos(@RequestParam String tipo, @RequestParam String status) {
-        List<MovimentacaoDto> movimentacao = this.movimentacaoServices.buscarTodasMovimentacoes(tipo, status);
+    public ResponseEntity<List<ResponseMovimentacaoDTO>> buscarMovimentacaos(@RequestParam String tipo, @RequestParam String status) {
+        List<ResponseMovimentacaoDTO> movimentacao = this.movimentacaoServices.buscarTodasMovimentacoes(tipo, status);
         return ResponseEntity.ok().body(movimentacao);
     }
 
     @PostMapping("/")
-    public ResponseEntity<MovimentacaoDto> criarMovimentacao(@Valid @RequestBody Movimentacao movimentacao){
-        MovimentacaoDto movimentacaoDto = this.movimentacaoServices.salvarMovimentacao(movimentacao);
+    public ResponseEntity<ResponseMovimentacaoDTO> criarMovimentacao(@Valid @RequestBody RequestMovimentacaoDTO movimentacaoDTO){
+        ResponseMovimentacaoDTO responseMovimentacaoDTO = this.movimentacaoServices.salvarMovimentacao(movimentacaoDTO);
         
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{idMovimentacao}").buildAndExpand(movimentacao.getMovId()).toUri();
-        return ResponseEntity.created(uri).body(movimentacaoDto);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{idMovimentacao}").buildAndExpand(responseMovimentacaoDTO.movId()).toUri();
+        return ResponseEntity.created(uri).body(responseMovimentacaoDTO);
     }
 
     @PutMapping("/cancelarMovimentacao/{idMovimentacao}")

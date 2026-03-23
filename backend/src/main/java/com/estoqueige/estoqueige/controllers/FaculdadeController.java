@@ -1,14 +1,14 @@
 package com.estoqueige.estoqueige.controllers;
 
-import java.net.URI;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.estoqueige.estoqueige.models.Faculdade;
+import com.estoqueige.estoqueige.models.faculdade.Faculdade;
+import com.estoqueige.estoqueige.models.faculdade.RequestFaculdadeDTO;
+import com.estoqueige.estoqueige.models.faculdade.ResponseFaculdadeDTO;
 import com.estoqueige.estoqueige.services.FaculdadeServices;
 
 import jakarta.validation.Valid;
@@ -32,29 +32,26 @@ public class FaculdadeController {
     }
 
     @GetMapping("/{idFaculdade}")
-    public ResponseEntity<Faculdade> buscarFaculdadesPorId(@PathVariable Long idFaculdade) {
+    public ResponseEntity<ResponseFaculdadeDTO> buscarFaculdadesPorId(@PathVariable Long idFaculdade) {
         Faculdade faculdade = this.faculdadeServices.buscarFaculdadePorId(idFaculdade);
-        return ResponseEntity.ok().body(faculdade);
+        return ResponseEntity.ok().body(ResponseFaculdadeDTO.fromEntity(faculdade));
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<Faculdade>> buscarFaculdades(@RequestParam Boolean status) {
-        List<Faculdade> faculdades = this.faculdadeServices.buscarTodasFaculdades(status);
+    public ResponseEntity<List<ResponseFaculdadeDTO>> buscarFaculdades(@RequestParam Boolean status) {
+        List<ResponseFaculdadeDTO> faculdades = this.faculdadeServices.buscarTodasFaculdades(status);
         return ResponseEntity.ok().body(faculdades);
     }
 
     @PostMapping("/")
-    public ResponseEntity<Faculdade> criarFaculdade(@Valid @RequestBody Faculdade faculdade){
-        Faculdade faculdadeCriada = this.faculdadeServices.cadastrarFaculdade(faculdade);
-        
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{idFaculdade}").buildAndExpand(faculdade.getFacId()).toUri();
-        return ResponseEntity.created(uri).body(faculdadeCriada);
+    public ResponseEntity<ResponseFaculdadeDTO> criarFaculdade(@Valid @RequestBody RequestFaculdadeDTO faculdade){
+        ResponseFaculdadeDTO faculdadeCriada = this.faculdadeServices.cadastrarFaculdade(faculdade);
+        return ResponseEntity.ok().body(faculdadeCriada);
     }
 
     @PutMapping("/{idFaculdade}")
-    public ResponseEntity<Faculdade> atualizarFaculdade(@Valid @RequestBody Faculdade faculdade, @PathVariable Long idFaculdade){
-        faculdade.setFacId(idFaculdade);
-        return ResponseEntity.ok(this.faculdadeServices.atualizarFaculdade(faculdade));
+    public ResponseEntity<ResponseFaculdadeDTO> atualizarFaculdade(@Valid @RequestBody RequestFaculdadeDTO faculdade, @PathVariable Long idFaculdade){
+        return ResponseEntity.ok(this.faculdadeServices.atualizarFaculdade(idFaculdade,faculdade));
     }
 
     @PutMapping("/inativar/{idFaculdade}")

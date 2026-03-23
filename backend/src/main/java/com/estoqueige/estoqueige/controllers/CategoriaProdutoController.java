@@ -1,14 +1,14 @@
 package com.estoqueige.estoqueige.controllers;
 
-import java.net.URI;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.estoqueige.estoqueige.models.CategoriaProduto;
+import com.estoqueige.estoqueige.models.categoriaProduto.CategoriaProduto;
+import com.estoqueige.estoqueige.models.categoriaProduto.RequestCategoriaProdutoDTO;
+import com.estoqueige.estoqueige.models.categoriaProduto.ResponseCategoriaDTO;
 import com.estoqueige.estoqueige.services.CategoriaProdutoServices;
 
 import jakarta.validation.Valid;
@@ -32,29 +32,26 @@ public class CategoriaProdutoController {
     }
 
     @GetMapping("/{idCategoriaProduto}")
-    public ResponseEntity<CategoriaProduto> buscarCategoriaProdutosPorId(@PathVariable Long idCategoriaProduto) {
+    public ResponseEntity<ResponseCategoriaDTO> buscarCategoriaProdutosPorId(@PathVariable Long idCategoriaProduto) {
         CategoriaProduto categoriaProduto = this.categoriaProdutoServices.buscarCategoriaProdutoPorId(idCategoriaProduto);
-        return ResponseEntity.ok().body(categoriaProduto);
+        return ResponseEntity.ok().body(ResponseCategoriaDTO.fromEntity(categoriaProduto));
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<CategoriaProduto>> buscarCategoriaProdutos(@RequestParam Boolean status) {
-        List<CategoriaProduto> categoriaProduto = this.categoriaProdutoServices.buscarTodasCategoriaProdutos(status);
+    public ResponseEntity<List<ResponseCategoriaDTO>> buscarCategoriaProdutos(@RequestParam Boolean status) {
+        List<ResponseCategoriaDTO> categoriaProduto = this.categoriaProdutoServices.buscarTodasCategoriaProdutos(status);
         return ResponseEntity.ok().body(categoriaProduto);
     }
 
     @PostMapping("/")
-    public ResponseEntity<CategoriaProduto> criarCategoriaProduto(@Valid @RequestBody CategoriaProduto categoriaProduto){
-        CategoriaProduto categoria = this.categoriaProdutoServices.cadastrarCategoriaProduto(categoriaProduto);
-        
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{idCategoriaProduto}").buildAndExpand(categoriaProduto.getCatProId()).toUri();
-        return ResponseEntity.created(uri).body(categoria);
+    public ResponseEntity<ResponseCategoriaDTO> criarCategoriaProduto(@Valid @RequestBody RequestCategoriaProdutoDTO categoriaProduto){
+        ResponseCategoriaDTO categoria = this.categoriaProdutoServices.cadastrarCategoriaProduto(categoriaProduto);
+        return ResponseEntity.ok().body(categoria);
     }
 
     @PutMapping("/{idCategoriaProduto}")
-    public ResponseEntity<CategoriaProduto> atualizarCategoriaProduto(@Valid @RequestBody CategoriaProduto categoriaProduto, @PathVariable Long idCategoriaProduto){
-        categoriaProduto.setCatProId(idCategoriaProduto);
-        return ResponseEntity.ok(this.categoriaProdutoServices.atualizarCategoriaProduto(categoriaProduto));
+    public ResponseEntity<ResponseCategoriaDTO> atualizarCategoriaProduto(@Valid @RequestBody RequestCategoriaProdutoDTO categoriaProduto, @PathVariable Long idCategoriaProduto){
+        return ResponseEntity.ok(this.categoriaProdutoServices.atualizarCategoriaProduto(idCategoriaProduto, categoriaProduto));
     }
 
     @PutMapping("/inativar/{idCategoriaProduto}")
